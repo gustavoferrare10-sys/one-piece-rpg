@@ -4,78 +4,99 @@
   <meta charset="UTF-8" />
   <title>One Piece RPG — Eventos Marítimos</title>
   <style>
-    body {
-      margin: 0;
-      font-family: 'Trebuchet MS', Arial, sans-serif;
-      background: linear-gradient(#0b4ea2, #0a2e5c);
-      color: #fff;
-      min-height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-    }
+  @import url('https://fonts.googleapis.com/css2?family=Pirata+One&display=swap');
 
-    .container {
-      width: 90%;
-      max-width: 900px;
-      background: rgba(0,0,0,0.35);
-      border-radius: 16px;
-      padding: 20px;
-      box-shadow: 0 0 25px rgba(0,0,0,0.6);
-    }
+  body {
+    margin: 0;
+    font-family: 'Trebuchet MS', Arial, sans-serif;
+    background: linear-gradient(180deg, #0a3d62, #1e90ff, #0a3d62);
+    color: #f5f6fa;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
 
-    h1, h2 {
-      text-align: center;
-      margin-top: 0;
-    }
+  .container {
+    width: 95%;
+    max-width: 950px;
+    background: rgba(10, 20, 40, 0.75);
+    border-radius: 18px;
+    padding: 24px;
+    box-shadow: 0 0 30px rgba(0, 0, 0, 0.7);
+    border: 2px solid rgba(255, 215, 0, 0.4);
+  }
 
-    .buttons {
-      display: flex;
-      justify-content: center;
-      gap: 16px;
-      margin-bottom: 20px;
-      flex-wrap: wrap;
-    }
+  h1 {
+    font-family: 'Pirata One', cursive;
+    font-size: 42px;
+    text-align: center;
+    margin-bottom: 10px;
+    color: #feca57;
+    text-shadow: 2px 2px 8px rgba(0,0,0,0.8);
+  }
 
-    button {
-      padding: 12px 18px;
-      font-size: 16px;
-      border: none;
-      border-radius: 12px;
-      cursor: pointer;
-      background: linear-gradient(#ffd24d, #ff9f1c);
-      color: #000;
-      font-weight: bold;
-      transition: transform 0.2s, box-shadow 0.2s;
-    }
+  h2 {
+    text-align: center;
+    color: #ffda79;
+  }
 
-    button:hover {
-      transform: scale(1.05);
-      box-shadow: 0 0 10px rgba(255,255,255,0.4);
-    }
+  .buttons {
+    display: flex;
+    justify-content: center;
+    gap: 18px;
+    margin: 20px 0;
+    flex-wrap: wrap;
+  }
 
-    button:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
-    }
+  button {
+    padding: 14px 22px;
+    font-size: 16px;
+    border-radius: 14px;
+    border: none;
+    cursor: pointer;
+    background: linear-gradient(180deg, #feca57, #ff9f43);
+    color: #2f3542;
+    font-weight: bold;
+    letter-spacing: 0.5px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
 
-    .box {
-      background: rgba(255,255,255,0.1);
-      border-radius: 12px;
-      padding: 15px;
-      margin-top: 15px;
-    }
+  button:hover {
+    transform: translateY(-2px) scale(1.05);
+    box-shadow: 0 0 18px rgba(254, 202, 87, 0.7);
+  }
 
-    .hidden {
-      display: none;
-    }
+  button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
 
-    .raridade-comum { color: #b5ffb5; }
-    .raridade-incomum { color: #7dd3fc; }
-    .raridade-rara { color: #c084fc; }
-    .raridade-epica { color: #f472b6; }
-    .raridade-lendaria { color: #facc15; }
-  </style>
+  .box {
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 14px;
+    padding: 18px;
+    margin-top: 16px;
+    border-left: 5px solid #feca57;
+    animation: fadeIn 0.4s ease-in-out;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .hidden {
+    display: none;
+  }
+
+  .raridade-comum { color: #7bed9f; }
+  .raridade-incomum { color: #70a1ff; }
+  .raridade-rara { color: #a29bfe; }
+  .raridade-epica { color: #ff6b81; }
+  .raridade-lendaria { color: #feca57; text-shadow: 0 0 6px #feca57; }
+</style>
 </head>
 <body>
   <div class="container">
