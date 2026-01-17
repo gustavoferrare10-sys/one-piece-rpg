@@ -10,11 +10,11 @@ body{
   margin:0;
   font-family:Arial, Helvetica, sans-serif;
   background:linear-gradient(#0a4fa3,#063b7a);
-  color:white;
+  color:#fff;
 }
 header{
   text-align:center;
-  padding:20px;
+  padding:18px;
   background:#042e63;
   font-size:22px;
   font-weight:bold;
@@ -32,9 +32,13 @@ button{
   border:none;
   border-radius:8px;
   background:#f5c542;
-  color:black;
+  color:#000;
   font-weight:bold;
   cursor:pointer;
+}
+button:disabled{
+  background:#888;
+  cursor:not-allowed;
 }
 .card{
   background:rgba(0,0,0,0.35);
@@ -48,7 +52,7 @@ button{
 .comum{background:#95a5a6}
 .raro{background:#2ecc71}
 .epico{background:#9b59b6}
-.lendario{background:#f1c40f;color:black}
+.lendario{background:#f1c40f;color:#000}
 .mitico{background:#e74c3c}
 
 .badge{
@@ -64,7 +68,7 @@ button{
 .progress-container{
   background:#003366;
   border-radius:12px;
-  height:30px;
+  height:28px;
   position:relative;
   overflow:hidden;
   margin:15px 0;
@@ -73,14 +77,12 @@ button{
   height:100%;
   width:0%;
   background:linear-gradient(90deg,#ff0000,#ff9900);
-  transition:width .4s;
 }
 .luffy{
   position:absolute;
-  top:-2px;
+  top:-3px;
   left:0%;
   font-size:26px;
-  transition:left .4s;
 }
 </style>
 </head>
@@ -90,8 +92,8 @@ button{
 <header>🏴‍☠️ Navegação Pirata — One Piece</header>
 
 <main>
-<button onclick="gerarEvento('grand')">🌊 Grand Line</button>
-<button onclick="gerarEvento('novo')">🔥 Novo Mundo</button>
+<button id="btnGrand">🌊 Grand Line</button>
+<button id="btnNovo">🔥 Novo Mundo</button>
 
 <div class="progress-container">
   <div class="progress-bar" id="barra"></div>
@@ -99,50 +101,67 @@ button{
 </div>
 
 <div id="evento" class="card hidden"></div>
-<button id="btnConcluir" class="hidden" onclick="concluirEvento()">⚔️ Concluir Evento</button>
+<button id="btnConcluir" class="hidden">⚔️ Concluir Evento</button>
 <div id="recompensa" class="card hidden"></div>
 </main>
 
 <script>
-let eventosConcluidos = Number(localStorage.getItem("eventosConcluidos")) || 0;
-let modoAtual = null;
+/* ================= ESTADO ================= */
+var eventosConcluidos = 0;
+var modoAtual = null;
+var cooldownFim = 0;
+var COOLDOWN = 10 * 60 * 1000;
 
-/* EVENTOS */
-const eventos = {
+/* ================= EVENTOS ================= */
+var eventos = {
   grand:[
     {desc:"Navio da Marinha patrulha a rota.", inimigo:"Tenente da Marinha", dificuldade:"Média"},
     {desc:"Piratas rivais surgem da neblina.", inimigo:"Tripulação Pirata", dificuldade:"Baixa"},
     {desc:"Um Rei dos Mares ataca o navio.", inimigo:"Rei dos Mares", dificuldade:"Alta"}
   ],
   novo:[
-    {desc:"Território de um Yonko.", inimigo:"Comandante Yonko", dificuldade:"Extrema"},
-    {desc:"Ilha infestada por SMILE.", inimigo:"Piratas de Kaido", dificuldade:"Alta"},
-    {desc:"Frota liderada por Almirante.", inimigo:"Almirante", dificuldade:"Letal"}
+    {desc:"Território dominado por um Yonko.", inimigo:"Comandante Yonko", dificuldade:"Extrema"},
+    {desc:"Ilha dominada por usuários de SMILE.", inimigo:"Piratas de Kaido", dificuldade:"Alta"},
+    {desc:"Frota da Marinha liderada por Almirante.", inimigo:"Almirante", dificuldade:"Letal"}
   ]
 };
 
-/* RECOMPENSAS — TODAS RESTAURADAS */
-const recompensas = {
+/* ================= RECOMPENSAS (TODAS) ================= */
+var recompensas = {
 grand:[
+  /* ARMAS */
   {nome:"Katana Comum",tipo:"Arma",raridade:"comum",efeito:"Força +5"},
   {nome:"Yubashiri",tipo:"Espada",raridade:"raro",efeito:"Força +7"},
   {nome:"Sandaí Kitetsu",tipo:"Espada",raridade:"epico",efeito:"Força +10"},
   {nome:"Clima-Tact",tipo:"Arma",raridade:"raro",efeito:"Velocidade +7"},
   {nome:"Kabuto",tipo:"Arma",raridade:"epico",efeito:"Precisão +10"},
+  {nome:"Martelo de Guerra",tipo:"Arma",raridade:"comum",efeito:"Força +6"},
+  {nome:"Lança Pirata",tipo:"Arma",raridade:"raro",efeito:"Força +8"},
+  {nome:"Punhos de Ferro",tipo:"Arma",raridade:"epico",efeito:"Força +9"},
+
+  /* COSMÉTICOS */
   {nome:"Capa Pirata",tipo:"Cosmético",raridade:"comum",efeito:"Resistência +5"},
   {nome:"Casaco da Marinha",tipo:"Cosmético",raridade:"raro",efeito:"Resistência +7"},
   {nome:"Óculos de Atirador",tipo:"Cosmético",raridade:"raro",efeito:"Precisão +7"},
   {nome:"Bandana Pirata",tipo:"Cosmético",raridade:"comum",efeito:"Força +5"},
   {nome:"Braceletes de Luta",tipo:"Cosmético",raridade:"epico",efeito:"Força +10"},
+  {nome:"Botas de Navegação",tipo:"Cosmético",raridade:"raro",efeito:"Velocidade +6"},
+  {nome:"Capa de Explorador",tipo:"Cosmético",raridade:"raro",efeito:"Velocidade +7"},
+
+  /* AKUMA NO MI */
   {nome:"Bara Bara no Mi",tipo:"Akuma no Mi",raridade:"epico",efeito:"Imunidade a cortes"},
   {nome:"Hana Hana no Mi",tipo:"Akuma no Mi",raridade:"lendario",efeito:"Criar membros"},
   {nome:"Doru Doru no Mi",tipo:"Akuma no Mi",raridade:"raro",efeito:"Criar cera"},
-  {nome:"Bomu Bomu no Mi",tipo:"Akuma no Mi",raridade:"raro",efeito:"Explosões"},
+  {nome:"Bomu Bomu no Mi",tipo:"Akuma no Mi",raridade:"raro",efeito:"Explosões corporais"},
+  {nome:"Sube Sube no Mi",tipo:"Akuma no Mi",raridade:"raro",efeito:"Corpo escorregadio"},
   {nome:"Kage Kage no Mi",tipo:"Akuma no Mi",raridade:"lendario",efeito:"Manipular sombras"},
   {nome:"Horo Horo no Mi",tipo:"Akuma no Mi",raridade:"epico",efeito:"Fantasmas negativos"},
-  {nome:"Inu Inu no Mi (Lobo)",tipo:"Zoan",raridade:"epico",efeito:"Força e sentidos aumentados"}
+  {nome:"Inu Inu no Mi (Lobo)",tipo:"Zoan",raridade:"epico",efeito:"Força e sentidos aumentados"},
+  {nome:"Mogu Mogu no Mi",tipo:"Zoan",raridade:"raro",efeito:"Escavação extrema"}
 ],
+
 novo:[
+  /* ESPADAS / ARMAS */
   {nome:"Wado Ichimonji",tipo:"Espada",raridade:"lendario",efeito:"Força +18"},
   {nome:"Enma",tipo:"Espada",raridade:"lendario",efeito:"Força +20"},
   {nome:"Shusui",tipo:"Espada",raridade:"lendario",efeito:"Força +17"},
@@ -150,59 +169,102 @@ novo:[
   {nome:"Griphon",tipo:"Espada",raridade:"lendario",efeito:"Força +18"},
   {nome:"Murakumogiri",tipo:"Arma",raridade:"mitico",efeito:"Força +25"},
   {nome:"Napoleon",tipo:"Arma",raridade:"mitico",efeito:"Força +22"},
+  {nome:"Bisento do Barba Branca",tipo:"Arma",raridade:"mitico",efeito:"Força +24"},
+
+  /* COSMÉTICOS */
   {nome:"Casaco de Yonko",tipo:"Cosmético",raridade:"lendario",efeito:"Resistência +18"},
   {nome:"Traje CP0",tipo:"Cosmético",raridade:"epico",efeito:"Velocidade +15"},
   {nome:"Manto do Barba Branca",tipo:"Cosmético",raridade:"mitico",efeito:"Força +20"},
   {nome:"Chapéu de Yonko",tipo:"Cosmético",raridade:"lendario",efeito:"Todos atributos +12"},
+  {nome:"Traje Samurai de Wano",tipo:"Cosmético",raridade:"epico",efeito:"Força +15"},
+  {nome:"Roupa Tecnológica Germa 66",tipo:"Cosmético",raridade:"lendario",efeito:"Velocidade +20"},
+  {nome:"Luvas de Haki Avançado",tipo:"Cosmético",raridade:"mitico",efeito:"Força +22"},
+
+  /* AKUMA NO MI */
   {nome:"Ope Ope no Mi",tipo:"Akuma no Mi",raridade:"mitico",efeito:"Manipular espaço"},
-  {nome:"Gura Gura no Mi",tipo:"Akuma no Mi",raridade:"mitico",efeito:"Tremores"},
-  {nome:"Magu Magu no Mi",tipo:"Akuma no Mi",raridade:"mitico",efeito:"Magma"},
-  {nome:"Pika Pika no Mi",tipo:"Akuma no Mi",raridade:"mitico",efeito:"Luz"},
+  {nome:"Gura Gura no Mi",tipo:"Akuma no Mi",raridade:"mitico",efeito:"Tremores destrutivos"},
+  {nome:"Magu Magu no Mi",tipo:"Akuma no Mi",raridade:"mitico",efeito:"Magma absoluto"},
+  {nome:"Pika Pika no Mi",tipo:"Akuma no Mi",raridade:"mitico",efeito:"Velocidade da luz"},
   {nome:"Yami Yami no Mi",tipo:"Akuma no Mi",raridade:"mitico",efeito:"Trevas"},
+  {nome:"Soru Soru no Mi",tipo:"Akuma no Mi",raridade:"mitico",efeito:"Manipular almas"},
+  {nome:"Uo Uo no Mi: Seiryu",tipo:"Zoan Mítica",raridade:"mitico",efeito:"Dragão lendário"},
+  {nome:"Tori Tori no Mi: Fênix",tipo:"Zoan Mítica",raridade:"mitico",efeito:"Regeneração total"},
+  {nome:"Nikyu Nikyu no Mi",tipo:"Akuma no Mi",raridade:"lendario",efeito:"Repelir tudo"},
   {nome:"Hito Hito no Mi: Nika",tipo:"Akuma no Mi",raridade:"mitico",efeito:"Liberdade absoluta"}
 ]
 };
 
-function salvar(){
-  localStorage.setItem("eventosConcluidos",eventosConcluidos);
+/* ================= SALVAMENTO ================= */
+function salvarEstado(){
+  localStorage.setItem("eventosConcluidos", String(eventosConcluidos));
+  localStorage.setItem("cooldownFim", String(cooldownFim));
 }
 
+function carregarEstado(){
+  var e = localStorage.getItem("eventosConcluidos");
+  var c = localStorage.getItem("cooldownFim");
+  eventosConcluidos = e ? parseInt(e,10) : 0;
+  cooldownFim = c ? parseInt(c,10) : 0;
+}
+
+/* ================= UI ================= */
+function atualizarBarra(){
+  var p = (eventosConcluidos % 5) * 20;
+  document.getElementById("barra").style.width = p + "%";
+  document.getElementById("luffy").style.left = p + "%";
+}
+
+function podeAgir(){
+  return Date.now() >= cooldownFim;
+}
+
+/* ================= LÓGICA ================= */
 function gerarEvento(modo){
-  modoAtual=modo;
-  const e=eventos[modo][Math.floor(Math.random()*eventos[modo].length)];
-  document.getElementById("evento").innerHTML=`
-    <h3>📜 Evento</h3>
-    <p><b>Descrição:</b> ${e.desc}</p>
-    <p><b>Inimigo:</b> ${e.inimigo}</p>
-    <p><b>Dificuldade:</b> ${e.dificuldade}</p>`;
-  document.getElementById("evento").classList.remove("hidden");
-  document.getElementById("btnConcluir").classList.remove("hidden");
-  document.getElementById("recompensa").classList.add("hidden");
+  if(!podeAgir()){
+    alert("Aguarde 10 minutos para o próximo evento.");
+    return;
+  }
+  modoAtual = modo;
+  cooldownFim = Date.now() + COOLDOWN;
+  salvarEstado();
+
+  var e = eventos[modo][Math.floor(Math.random()*eventos[modo].length)];
+  document.getElementById("evento").innerHTML =
+    "<h3>📜 Evento</h3>"+
+    "<p><b>Descrição:</b> "+e.desc+"</p>"+
+    "<p><b>Inimigo:</b> "+e.inimigo+"</p>"+
+    "<p><b>Dificuldade:</b> "+e.dificuldade+"</p>";
+
+  document.getElementById("evento").className="card";
+  document.getElementById("btnConcluir").className="";
+  document.getElementById("recompensa").className="card hidden";
 }
 
 function concluirEvento(){
   eventosConcluidos++;
-  salvar();
+  salvarEstado();
   atualizarBarra();
-  const lista=recompensas[modoAtual];
-  const r=lista[Math.floor(Math.random()*lista.length)];
-  document.getElementById("recompensa").innerHTML=`
-    <h3>🎁 Recompensa</h3>
-    <span class="badge ${r.raridade}">${r.raridade.toUpperCase()}</span>
-    <p><b>Item:</b> ${r.nome}</p>
-    <p><b>Tipo:</b> ${r.tipo}</p>
-    <p><b>Efeito:</b> ${r.efeito}</p>`;
-  document.getElementById("recompensa").classList.remove("hidden");
-  document.getElementById("btnConcluir").classList.add("hidden");
+
+  var r = recompensas[modoAtual][Math.floor(Math.random()*recompensas[modoAtual].length)];
+  document.getElementById("recompensa").innerHTML =
+    "<h3>🎁 Recompensa</h3>"+
+    "<span class='badge "+r.raridade+"'>"+r.raridade.toUpperCase()+"</span>"+
+    "<p><b>Item:</b> "+r.nome+"</p>"+
+    "<p><b>Tipo:</b> "+r.tipo+"</p>"+
+    "<p><b>Efeito:</b> "+r.efeito+"</p>";
+
+  document.getElementById("recompensa").className="card";
+  document.getElementById("btnConcluir").className="hidden";
 }
 
-function atualizarBarra(){
-  const p=(eventosConcluidos%5)*20;
-  document.getElementById("barra").style.width=p+"%";
-  document.getElementById("luffy").style.left=p+"%";
-}
-
+/* ================= INIT ================= */
+carregarEstado();
 atualizarBarra();
+document.getElementById("btnGrand").onclick=function(){gerarEvento("grand")};
+document.getElementById("btnNovo").onclick=function(){gerarEvento("novo")};
+document.getElementById("btnConcluir").onclick=concluirEvento;
+window.addEventListener("beforeunload",salvarEstado);
 </script>
+
 </body>
 </html>
