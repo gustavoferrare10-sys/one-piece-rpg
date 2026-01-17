@@ -6,22 +6,11 @@
 <title>Navegação Pirata</title>
 
 <style>
-:root{
-  --mar:#0a4fa3;
-  --mar-escuro:#063b7a;
-  --dourado:#f5c542;
-  --branco:#ffffff;
-}
-
-*{
-  box-sizing:border-box;
-  font-family:Arial, Helvetica, sans-serif;
-}
-
 body{
   margin:0;
-  background:linear-gradient(to bottom, var(--mar), var(--mar-escuro));
-  color:var(--branco);
+  font-family:Arial, Helvetica, sans-serif;
+  background:linear-gradient(#0a4fa3,#063b7a);
+  color:white;
 }
 
 header{
@@ -33,9 +22,9 @@ header{
 }
 
 main{
-  padding:15px;
-  max-width:800px;
+  max-width:850px;
   margin:auto;
+  padding:15px;
 }
 
 button{
@@ -45,19 +34,18 @@ button{
   font-size:16px;
   border:none;
   border-radius:8px;
-  background:var(--dourado);
-  color:#000;
+  background:#f5c542;
+  color:black;
   font-weight:bold;
   cursor:pointer;
 }
 
 button:disabled{
   background:#888;
-  cursor:not-allowed;
 }
 
 .card{
-  background:rgba(0,0,0,0.3);
+  background:rgba(0,0,0,0.35);
   padding:15px;
   border-radius:10px;
   margin-top:10px;
@@ -67,32 +55,45 @@ button:disabled{
   display:none;
 }
 
+/* RARIDADES */
+.comum{background:#95a5a6;}
+.raro{background:#2ecc71;}
+.epico{background:#9b59b6;}
+.lendario{background:#f1c40f;color:black;}
+.mitico{background:#e74c3c;}
+
 .badge{
   padding:4px 8px;
   border-radius:6px;
   font-size:12px;
   font-weight:bold;
   display:inline-block;
-  margin-bottom:5px;
+  margin-bottom:6px;
 }
 
-.raro{background:#2ecc71;}
-.epico{background:#9b59b6;}
-.lendario{background:#f1c40f;color:#000;}
-.mitico{background:#e74c3c;}
-
-.progress{
+/* PROGRESSO */
+.progress-container{
   background:#003366;
-  border-radius:10px;
+  border-radius:12px;
+  height:28px;
+  position:relative;
   overflow:hidden;
   margin:15px 0;
 }
 
 .progress-bar{
-  height:20px;
+  height:100%;
   width:0%;
-  background:#ff0000;
-  transition:width 0.4s;
+  background:linear-gradient(90deg,#ff0000,#ff9900);
+  transition:width .4s;
+}
+
+.luffy{
+  position:absolute;
+  top:-4px;
+  left:0%;
+  font-size:26px;
+  transition:left .4s;
 }
 </style>
 </head>
@@ -103,72 +104,83 @@ button:disabled{
 
 <main>
 
-<button onclick="iniciarModo('grand')">🌊 Navegar pela Grand Line</button>
-<button onclick="iniciarModo('novo')">🔥 Navegação do Novo Mundo</button>
+<button onclick="gerarEvento('grand')">🌊 Navegar pela Grand Line</button>
+<button onclick="gerarEvento('novo')">🔥 Navegação do Novo Mundo</button>
 
-<div class="progress">
+<div class="progress-container">
   <div class="progress-bar" id="barra"></div>
+  <div class="luffy" id="luffy">🏃‍♂️</div>
 </div>
 
 <div id="evento" class="card hidden"></div>
-<button id="concluir" class="hidden" onclick="concluirEvento()">⚔️ Concluir Evento</button>
+<button id="btnConcluir" class="hidden" onclick="concluirEvento()">⚔️ Concluir Evento</button>
 <div id="recompensa" class="card hidden"></div>
 
 </main>
 
 <script>
+/* ================= ESTADO ================= */
+let eventosConcluidos = Number(localStorage.getItem("eventosConcluidos")) || 0;
+let proximoEvento = Number(localStorage.getItem("proximoEvento")) || 0;
 let modoAtual = null;
-let eventosConcluidos = 0;
-let eventoGerado = null;
-let proximoTempo = 0;
 
+/* ================= EVENTOS ================= */
 const eventos = {
   grand:[
-    {desc:"Um navio da Marinha patrulha a região.", inimigo:"Capitão da Marinha", dificuldade:"Média"},
-    {desc:"Piratas rivais atacam durante a neblina.", inimigo:"Piratas da Grand Line", dificuldade:"Baixa"},
-    {desc:"Uma criatura marinha colossal surge.", inimigo:"Rei dos Mares", dificuldade:"Alta"}
+    {desc:"Um navio da Marinha patrulha a rota.", inimigo:"Tenente da Marinha", dificuldade:"Média"},
+    {desc:"Piratas rivais surgem da neblina.", inimigo:"Tripulação Pirata", dificuldade:"Baixa"},
+    {desc:"Um Rei dos Mares ataca o navio.", inimigo:"Rei dos Mares", dificuldade:"Alta"}
   ],
   novo:[
-    {desc:"Um comandante de Yonko bloqueia o caminho.", inimigo:"Comandante do Novo Mundo", dificuldade:"Extrema"},
-    {desc:"Uma ilha dominada por SMILEs defeituosas.", inimigo:"Piratas de Kaido", dificuldade:"Alta"},
-    {desc:"Território proibido da Marinha.", inimigo:"Almirante", dificuldade:"Letal"}
+    {desc:"Território dominado por um comandante Yonko.", inimigo:"Comandante", dificuldade:"Extrema"},
+    {desc:"Ilha tomada por usuários de SMILE.", inimigo:"Piratas de Kaido", dificuldade:"Alta"},
+    {desc:"Frota da Marinha com Almirante.", inimigo:"Almirante", dificuldade:"Letal"}
   ]
 };
 
+/* ================= RECOMPENSAS ================= */
 const recompensas = {
   grand:[
-    {nome:"Katana Comum", tipo:"Espada", raridade:"raro", bonus:"Força +7"},
-    {nome:"Mapa da Grand Line", tipo:"Mapa", raridade:"epico", bonus:"Revela rotas raras"},
-    {nome:"Kilo Kilo no Mi", tipo:"Akuma no Mi", raridade:"lendario", bonus:"Manipula peso"}
+    {nome:"Katana Comum", tipo:"Espada", raridade:"raro", efeito:"Força +7"},
+    {nome:"Sandaí Kitetsu", tipo:"Espada", raridade:"epico", efeito:"Força +10"},
+    {nome:"Capa Pirata", tipo:"Cosmético", raridade:"comum", efeito:"Resistência +5"},
+    {nome:"Kilo Kilo no Mi", tipo:"Akuma no Mi", raridade:"lendario", efeito:"Manipula peso do corpo"}
   ],
   novo:[
-    {nome:"Nidai Kitetsu", tipo:"Espada", raridade:"epico", bonus:"Força +15"},
-    {nome:"Mochi Mochi no Mi", tipo:"Akuma no Mi", raridade:"lendario", bonus:"Corpo de mochi + visão futura"},
-    {nome:"Hito Hito no Mi: Nika", tipo:"Akuma no Mi", raridade:"mitico", bonus:"Liberdade absoluta"}
+    {nome:"Nidai Kitetsu", tipo:"Espada", raridade:"epico", efeito:"Força +15"},
+    {nome:"Griphon", tipo:"Espada", raridade:"lendario", efeito:"Força +18"},
+    {nome:"Armadura Germa 66", tipo:"Cosmético", raridade:"epico", efeito:"Velocidade +15"},
+    {nome:"Mochi Mochi no Mi", tipo:"Akuma no Mi", raridade:"lendario", efeito:"Corpo de mochi"},
+    {nome:"Hito Hito no Mi: Nika", tipo:"Akuma no Mi", raridade:"mitico", efeito:"Liberdade absoluta"}
   ]
 };
 
-function iniciarModo(modo){
+/* ================= FUNÇÕES ================= */
+function salvar(){
+  localStorage.setItem("eventosConcluidos", eventosConcluidos);
+  localStorage.setItem("proximoEvento", proximoEvento);
+}
+
+function gerarEvento(modo){
   const agora = Date.now();
-  if(agora < proximoTempo){
-    const min = Math.ceil((proximoTempo-agora)/60000);
-    alert("Aguarde "+min+" minutos para o próximo evento.");
+  if(agora < proximoEvento){
+    const min = Math.ceil((proximoEvento-agora)/60000);
+    alert("Aguarde "+min+" minutos.");
     return;
   }
 
   modoAtual = modo;
-  const lista = eventos[modo];
-  eventoGerado = lista[Math.floor(Math.random()*lista.length)];
+  const evento = eventos[modo][Math.floor(Math.random()*eventos[modo].length)];
 
   document.getElementById("evento").innerHTML = `
     <h3>📜 Evento</h3>
-    <p><b>Descrição:</b> ${eventoGerado.desc}</p>
-    <p><b>Inimigo:</b> ${eventoGerado.inimigo}</p>
-    <p><b>Dificuldade:</b> ${eventoGerado.dificuldade}</p>
+    <p><b>Descrição:</b> ${evento.desc}</p>
+    <p><b>Inimigo:</b> ${evento.inimigo}</p>
+    <p><b>Dificuldade:</b> ${evento.dificuldade}</p>
   `;
 
   document.getElementById("evento").classList.remove("hidden");
-  document.getElementById("concluir").classList.remove("hidden");
+  document.getElementById("btnConcluir").classList.remove("hidden");
   document.getElementById("recompensa").classList.add("hidden");
 }
 
@@ -184,20 +196,24 @@ function concluirEvento(){
     <span class="badge ${recompensa.raridade}">${recompensa.raridade.toUpperCase()}</span>
     <p><b>Item:</b> ${recompensa.nome}</p>
     <p><b>Tipo:</b> ${recompensa.tipo}</p>
-    <p><b>Efeito:</b> ${recompensa.bonus}</p>
+    <p><b>Efeito:</b> ${recompensa.efeito}</p>
   `;
 
   document.getElementById("recompensa").classList.remove("hidden");
-  document.getElementById("concluir").classList.add("hidden");
+  document.getElementById("btnConcluir").classList.add("hidden");
 
-  const tempo = (Math.floor(Math.random()*11)+5)*60000;
-  proximoTempo = Date.now()+tempo;
+  proximoEvento = Date.now() + ((Math.floor(Math.random()*11)+5)*60000);
+  salvar();
 }
 
 function atualizarBarra(){
-  let progresso = (eventosConcluidos%5)*20;
+  const progresso = (eventosConcluidos % 5) * 20;
   document.getElementById("barra").style.width = progresso+"%";
+  document.getElementById("luffy").style.left = progresso+"%";
 }
+
+/* ================= INIT ================= */
+atualizarBarra();
 </script>
 
 </body>
