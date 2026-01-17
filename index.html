@@ -97,6 +97,7 @@ h1{font-family:'Pirata One';font-size:3.2em;color:var(--gold);text-shadow:2px 2p
 <script>
 let cooldown=false;
 let pendingReward=null;
+let currentMode=null;
 
 /* ================= EVENTOS ================= */
 const events={
@@ -105,7 +106,7 @@ const events={
       name:"Navio da Marinha",
       rarity:"Comum",
       difficulty:"Fácil",
-      description:"Velas brancas surgem no horizonte. Um navio da Marinha corta o mar com formação disciplinada. Olhares atentos vasculham as águas em busca de qualquer sinal pirata.",
+      description:"Velas brancas surgem no horizonte. Um navio da Marinha corta o mar com formação disciplinada.",
       enemies:"Fuzileiros navais e um Capitão da Marinha",
       objective:"Evitar confronto ou derrotar o capitão"
     },
@@ -113,7 +114,7 @@ const events={
       name:"Rei do Mar",
       rarity:"Raro",
       difficulty:"Médio",
-      description:"O oceano se agita violentamente. Uma sombra colossal emerge sob o casco, seguida por um rugido capaz de gelar a espinha. Um Rei do Mar ataca sem piedade.",
+      description:"O oceano se agita violentamente e uma criatura colossal emerge das profundezas.",
       enemies:"Rei do Mar colossal",
       objective:"Sobreviver ou derrotar a criatura"
     },
@@ -121,7 +122,7 @@ const events={
       name:"Thriller Bark",
       rarity:"Lendário",
       difficulty:"Difícil",
-      description:"Uma névoa espessa cobre o mar. Um navio gigantesco e sombrio surge em silêncio absoluto. Risadas macabras ecoam enquanto zumbis se movem entre os conveses.",
+      description:"Uma névoa espessa cobre o mar. Um navio gigantesco e sombrio surge em silêncio absoluto.",
       enemies:"Zumbis e Gecko Moria",
       objective:"Escapar do navio amaldiçoado"
     }
@@ -131,182 +132,101 @@ const events={
       name:"Piratas do Novo Mundo",
       rarity:"Raro",
       difficulty:"Difícil",
-      description:"Um navio robusto se aproxima. A pressão no ar é sufocante — usuários de Haki observam cada movimento. Esses piratas carregam cicatrizes de inúmeras batalhas.",
-      enemies:"Piratas veteranos usuários de Haki",
-      objective:"Vencer o confronto ou recuar estrategicamente"
+      description:"A pressão do Haki toma o ar. Piratas veteranos observam em silêncio.",
+      enemies:"Piratas usuários de Haki",
+      objective:"Vencer o confronto ou recuar"
     },
     {
       name:"Território de Yonkou",
       rarity:"Lendário",
       difficulty:"Extremo",
-      description:"O vento cessa abruptamente. Um peso esmagador toma conta do navio. Estas águas pertencem a um Yonkou, onde até o mar parece obedecer à sua vontade.",
-      enemies:"Comandantes de elite de um Imperador dos Mares",
-      objective:"Fugir com vida dessas águas"
+      description:"O mar parece obedecer a uma vontade absoluta. Estas águas pertencem a um Imperador.",
+      enemies:"Comandantes de Yonkou",
+      objective:"Fugir com vida"
     }
   ]
 };
 
 /* ================= RECOMPENSAS ================= */
-const rewards=[
-  /* ================= GRAND LINE ================= */
-  {
-    type:"ouro",
-    name:"Bolsa de Ouro",
-    rarity:"Comum",
-    chance:30,
-    generate:()=>{
-      const gold=Math.floor(Math.random()*200)+100;
-      return {
-        title:`${gold} Berries`,
-        details:[`Moedas obtidas: ${gold} Berries`,`Espólios coletados após escaramuças comuns da Grand Line.`]
+const rewards={
+  grand:[
+    {
+      chance:40,
+      generate:()=>{
+        const gold=Math.floor(Math.random()*200)+100;
+        return {title:`${gold} Berries`,details:["Espólios comuns da Grand Line."]};
       }
-    }
-  },
-  {
-    type:"mapa",
-    name:"Mapa Antigo",
-    rarity:"Raro",
-    chance:20,
-    generate:()=>({
-      title:"Mapa Antigo da Grand Line",
-      details:[
-        "Mostra a localização aproximada de um navio afundado repleto de suprimentos.",
-        "Pode render novos eventos ou recompensas no futuro."
-      ]
-    })
-  },
-  {
-    type:"arma",
-    name:"Espada Nomeada",
-    rarity:"Raro",
-    chance:20,
-    generate:()=>({
-      title:"Espada – Lâmina do Vento",
-      details:[
-        "Uma espada usada por um antigo espadachim da Grand Line.",
-        "Leve, rápida e confiável em combates prolongados."
-      ]
-    })
-  },
-  {
-    type:"fruta",
-    name:"Fruta do Diabo",
-    rarity:"Lendária",
-    chance:5,
-    generate:()=>({
-      title:"Fruta do Diabo – Paramecia Rara",
-      details:[
-        "Concede uma habilidade especial que altera o corpo do usuário.",
-        "Muito valorizada por piratas experientes."
-      ]
-    })
-  },
-
-  /* ================= NOVO MUNDO ================= */
-  {
-    type:"ouro",
-    name:"Tesouro de Imperador",
-    rarity:"Raro",
-    chance:15,
-    generate:()=>{
-      const gold=Math.floor(Math.random()*2000)+3000;
-      return {
-        title:`${gold} Berries`,
-        details:[
-          `Moedas obtidas: ${gold} Berries`,
-          "Tesouro tomado de territórios controlados por grandes piratas do Novo Mundo."
-        ]
-      }
-    }
-  },
-  {
-    type:"arma",
-    name:"Arma Lendária",
-    rarity:"Lendária",
-    chance:10,
-    generate:()=>({
-      title:"Meito Suprema",
-      details:[
-        "Uma das lâminas de altíssimo grau, comparável às espadas dos maiores espadachins do mundo.",
-        "Capaz de cortar aço e intimidar inimigos apenas com sua presença."
-      ]
-    })
-  },
-  {
-    type:"fruta",
-    name:"Fruta Mítica",
-    rarity:"Mítica",
-    chance:5,
-    generate:()=>({
-      title:"Fruta do Diabo – Zoan Mítica",
-      details:[
-        "Permite ao usuário se transformar em uma criatura lendária.",
-        "Poder comparável aos comandantes de Yonkou."
-      ]
-    })
-  },
-  {
-    type:"reliquia",
-    name:"Relíquia do Novo Mundo",
-    rarity:"Mítica",
-    chance:5,
-    generate:()=>({
-      title:"Relíquia Antiga",
-      details:[
-        "Um artefato misterioso ligado ao Século Perdido.",
-        "Extremamente cobiçado pelo Governo Mundial e por Yonkous."
-      ]
-    })
-  }
-];
-      return {
+    },
+    {
+      chance:30,
+      generate:()=>({
         title:"Mapa Antigo",
-        details:[maps[Math.floor(Math.random()*maps.length)],"Pode render tesouros ou novos eventos futuramente."]
-      }
+        details:["Mostra a localização de um navio afundado."]
+      })
+    },
+    {
+      chance:20,
+      generate:()=>({
+        title:"Espada Nomeada",
+        details:["Uma lâmina respeitável usada por piratas experientes."]
+      })
+    },
+    {
+      chance:10,
+      generate:()=>({
+        title:"Fruta do Diabo – Paramecia",
+        details:["Uma fruta rara capaz de conceder habilidades especiais."]
+      })
     }
-  },
-  {
-    type:"arma",
-    name:"Espada Nomeada",
-    rarity:"Raro",
-    chance:20,
-    generate:()=>({
-      title:"Espada – Lâmina do Vento",
-      details:[
-        "Uma espada bem equilibrada, inspirada em armas usadas por espadachins da Grand Line.",
-        "Aumenta a eficácia em combates corpo a corpo."
-      ]
-    })
-  },
-  {
-    type:"fruta",
-    name:"Fruta do Diabo",
-    rarity:"Lendária",
-    chance:5,
-    generate:()=>({
-      title:"Fruta do Diabo – Logia",
-      details:[
-        "Uma fruta extremamente rara capaz de conceder controle total sobre um elemento natural.",
-        "Poder comparável aos grandes nomes do Novo Mundo."
-      ]
-    })
-  }
-];
+  ],
+  newworld:[
+    {
+      chance:40,
+      generate:()=>{
+        const gold=Math.floor(Math.random()*3000)+3000;
+        return {title:`${gold} Berries`,details:["Tesouro retirado de territórios de Yonkou."]};
+      }
+    },
+    {
+      chance:25,
+      generate:()=>({
+        title:"Meito Suprema",
+        details:["Uma espada lendária capaz de intimidar até grandes piratas."]
+      })
+    },
+    {
+      chance:20,
+      generate:()=>({
+        title:"Zoan Mítica",
+        details:["Concede o poder de uma criatura lendária."]
+      })
+    },
+    {
+      chance:15,
+      generate:()=>({
+        title:"Relíquia do Século Perdido",
+        details:["Um artefato cobiçado pelo Governo Mundial."]
+      })
+    }
+  ]
+};
 
-function weightedReward(){
+function drawReward(mode){
   const pool=[];
-  rewards.forEach(r=>{for(let i=0;i<r.chance;i++) pool.push(r)});
-  return pool[Math.floor(Math.random()*pool.length)];
+  rewards[mode].forEach(r=>{
+    for(let i=0;i<r.chance;i++) pool.push(r);
+  });
+  return pool[Math.floor(Math.random()*pool.length)].generate();
 }
 
 function generateEvent(mode){
   if(cooldown) return;
-
+  currentMode=mode;
   const event=events[mode][Math.floor(Math.random()*events[mode].length)];
-  pendingReward=weightedReward();
+  pendingReward=null;
 
-  document.getElementById('eventCard').classList.remove('hidden');
   document.getElementById('rewardCard').classList.add('hidden');
+  document.getElementById('eventCard').classList.remove('hidden');
 
   document.getElementById('eventCard').innerHTML=`
     <h2>${event.name}</h2>
@@ -326,12 +246,13 @@ function generateEvent(mode){
 }
 
 function concludeEvent(){
-  const result=pendingReward.generate();
+  if(!currentMode) return;
+  const reward=drawReward(currentMode);
   document.getElementById('rewardCard').classList.remove('hidden');
   document.getElementById('rewardCard').innerHTML=`
     <h3>🎁 Recompensa Obtida</h3>
-    <p><b>${result.title}</b></p>
-    <ul class="reward-list">${result.details.map(d=>`<li>${d}</li>`).join('')}</ul>
+    <p><b>${reward.title}</b></p>
+    <ul class="reward-list">${reward.details.map(d=>`<li>${d}</li>`).join('')}</ul>
   `;
 }
 
