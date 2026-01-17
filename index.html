@@ -148,16 +148,17 @@ const events={
 
 /* ================= RECOMPENSAS ================= */
 const rewards=[
+  /* ================= GRAND LINE ================= */
   {
     type:"ouro",
     name:"Bolsa de Ouro",
     rarity:"Comum",
-    chance:35,
+    chance:30,
     generate:()=>{
       const gold=Math.floor(Math.random()*200)+100;
       return {
         title:`${gold} Berries`,
-        details:[`Moedas obtidas: ${gold} Berries`,`Dinheiro saqueado de marinheiros e piratas derrotados.`]
+        details:[`Moedas obtidas: ${gold} Berries`,`Espólios coletados após escaramuças comuns da Grand Line.`]
       }
     }
   },
@@ -166,12 +167,98 @@ const rewards=[
     name:"Mapa Antigo",
     rarity:"Raro",
     chance:20,
+    generate:()=>({
+      title:"Mapa Antigo da Grand Line",
+      details:[
+        "Mostra a localização aproximada de um navio afundado repleto de suprimentos.",
+        "Pode render novos eventos ou recompensas no futuro."
+      ]
+    })
+  },
+  {
+    type:"arma",
+    name:"Espada Nomeada",
+    rarity:"Raro",
+    chance:20,
+    generate:()=>({
+      title:"Espada – Lâmina do Vento",
+      details:[
+        "Uma espada usada por um antigo espadachim da Grand Line.",
+        "Leve, rápida e confiável em combates prolongados."
+      ]
+    })
+  },
+  {
+    type:"fruta",
+    name:"Fruta do Diabo",
+    rarity:"Lendária",
+    chance:5,
+    generate:()=>({
+      title:"Fruta do Diabo – Paramecia Rara",
+      details:[
+        "Concede uma habilidade especial que altera o corpo do usuário.",
+        "Muito valorizada por piratas experientes."
+      ]
+    })
+  },
+
+  /* ================= NOVO MUNDO ================= */
+  {
+    type:"ouro",
+    name:"Tesouro de Imperador",
+    rarity:"Raro",
+    chance:15,
     generate:()=>{
-      const maps=[
-        "Um mapa indicando a localização de um navio afundado na Grand Line.",
-        "Um mapa incompleto mostrando rotas seguras entre ilhas perigosas.",
-        "Um mapa marcado com símbolos estranhos apontando para uma ilha esquecida."
-      ];
+      const gold=Math.floor(Math.random()*2000)+3000;
+      return {
+        title:`${gold} Berries`,
+        details:[
+          `Moedas obtidas: ${gold} Berries`,
+          "Tesouro tomado de territórios controlados por grandes piratas do Novo Mundo."
+        ]
+      }
+    }
+  },
+  {
+    type:"arma",
+    name:"Arma Lendária",
+    rarity:"Lendária",
+    chance:10,
+    generate:()=>({
+      title:"Meito Suprema",
+      details:[
+        "Uma das lâminas de altíssimo grau, comparável às espadas dos maiores espadachins do mundo.",
+        "Capaz de cortar aço e intimidar inimigos apenas com sua presença."
+      ]
+    })
+  },
+  {
+    type:"fruta",
+    name:"Fruta Mítica",
+    rarity:"Mítica",
+    chance:5,
+    generate:()=>({
+      title:"Fruta do Diabo – Zoan Mítica",
+      details:[
+        "Permite ao usuário se transformar em uma criatura lendária.",
+        "Poder comparável aos comandantes de Yonkou."
+      ]
+    })
+  },
+  {
+    type:"reliquia",
+    name:"Relíquia do Novo Mundo",
+    rarity:"Mítica",
+    chance:5,
+    generate:()=>({
+      title:"Relíquia Antiga",
+      details:[
+        "Um artefato misterioso ligado ao Século Perdido.",
+        "Extremamente cobiçado pelo Governo Mundial e por Yonkous."
+      ]
+    })
+  }
+];
       return {
         title:"Mapa Antigo",
         details:[maps[Math.floor(Math.random()*maps.length)],"Pode render tesouros ou novos eventos futuramente."]
