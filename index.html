@@ -7,9 +7,9 @@
 <link href="https://fonts.googleapis.com/css2?family=Pirata+One&family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
 <style>
 :root{
-  --sea-light:#1e6091;
-  --sea:#0a2540;
-  --sea-deep:#000814;
+  --sea:#0b3c5d;
+  --sea-dark:#07283d;
+  --sea-deep:#031926;
   --gold:#f5c542;
   --accent:#90e0ef;
   --card:#001d3d;
@@ -18,7 +18,7 @@ body{
   margin:0;
   font-family:Roboto, sans-serif;
   color:#fff;
-  background:linear-gradient(180deg,var(--sea-light),var(--sea),var(--sea-deep));
+  background:linear-gradient(180deg,var(--sea),var(--sea-dark),var(--sea-deep));
   min-height:100vh;
   text-align:center;
 }
@@ -41,7 +41,7 @@ h1{font-family:'Pirata One';font-size:3.2em;color:var(--gold);text-shadow:2px 2p
 }
 .mode-buttons button:disabled{opacity:.4;cursor:not-allowed}
 .card{
-  background:rgba(0,29,61,.95);
+  background:rgba(0,29,61,.96);
   border-radius:22px;
   padding:28px;
   margin-top:25px;
@@ -57,10 +57,17 @@ h1{font-family:'Pirata One';font-size:3.2em;color:var(--gold);text-shadow:2px 2p
   margin:4px;
   font-size:.85em
 }
+.description-box{
+  margin-top:15px;
+  padding:16px;
+  background:#012a4a;
+  border-radius:15px;
+  line-height:1.65
+}
 .center{text-align:center}
 .action-btn{
-  margin-top:20px;
-  padding:14px 26px;
+  margin-top:22px;
+  padding:14px 28px;
   border:none;
   border-radius:25px;
   background:linear-gradient(135deg,var(--accent),#48cae4);
@@ -69,19 +76,13 @@ h1{font-family:'Pirata One';font-size:3.2em;color:var(--gold);text-shadow:2px 2p
 }
 .timer{margin-top:18px;font-weight:bold;color:var(--accent)}
 .hidden{display:none}
-.description-box{
-  margin-top:15px;
-  padding:15px;
-  background:#012a4a;
-  border-radius:15px;
-  line-height:1.6
-}
+.reward-list li{margin:8px 0}
 </style>
 </head>
 <body>
 <div class="container">
   <h1>⚓ Grand Line RPG ⚓</h1>
-  <div class="subtitle">Sistema de Eventos Marítimos inspirado em One Piece</div>
+  <div class="subtitle">Sistema narrativo de eventos marítimos – One Piece</div>
 
   <div class="mode-buttons">
     <button onclick="generateEvent('grand')">🌊 Navegar pela Grand Line</button>
@@ -97,31 +98,32 @@ h1{font-family:'Pirata One';font-size:3.2em;color:var(--gold);text-shadow:2px 2p
 let cooldown=false;
 let pendingReward=null;
 
+/* ================= EVENTOS ================= */
 const events={
   grand:[
     {
       name:"Navio da Marinha",
       rarity:"Comum",
       difficulty:"Fácil",
-      description:"No horizonte, velas brancas surgem contra o céu. Um navio da Marinha corta as ondas com disciplina rígida. Os fuzileiros observam atentamente, prontos para agir caso identifiquem qualquer bandeira pirata. O clima é tenso, mas ainda controlável.",
+      description:"Velas brancas surgem no horizonte. Um navio da Marinha corta o mar com formação disciplinada. Olhares atentos vasculham as águas em busca de qualquer sinal pirata.",
       enemies:"Fuzileiros navais e um Capitão da Marinha",
-      objective:"Passar despercebido ou derrotar o capitão para continuar a rota"
+      objective:"Evitar confronto ou derrotar o capitão"
     },
     {
       name:"Rei do Mar",
       rarity:"Raro",
       difficulty:"Médio",
-      description:"As águas começam a borbulhar e o mar se agita violentamente. Uma sombra gigantesca se move sob o navio antes de emergir em um rugido ensurdecedor. O Rei do Mar ataca sem piedade, testando a coragem e a força da tripulação.",
-      enemies:"Um Rei do Mar colossal",
-      objective:"Sobreviver ao ataque ou derrotar a criatura"
+      description:"O oceano se agita violentamente. Uma sombra colossal emerge sob o casco, seguida por um rugido capaz de gelar a espinha. Um Rei do Mar ataca sem piedade.",
+      enemies:"Rei do Mar colossal",
+      objective:"Sobreviver ou derrotar a criatura"
     },
     {
       name:"Thriller Bark",
       rarity:"Lendário",
       difficulty:"Difícil",
-      description:"Uma névoa espessa cobre o mar, abafando sons e sentidos. De repente, um gigantesco navio fantasma surge silenciosamente. Risadas distantes ecoam enquanto zumbis se movimentam nas sombras. Algo terrível observa cada passo da tripulação.",
-      enemies:"Zumbis e o Shichibukai Gecko Moria",
-      objective:"Escapar do navio amaldiçoado com vida"
+      description:"Uma névoa espessa cobre o mar. Um navio gigantesco e sombrio surge em silêncio absoluto. Risadas macabras ecoam enquanto zumbis se movem entre os conveses.",
+      enemies:"Zumbis e Gecko Moria",
+      objective:"Escapar do navio amaldiçoado"
     }
   ],
   newworld:[
@@ -129,25 +131,79 @@ const events={
       name:"Piratas do Novo Mundo",
       rarity:"Raro",
       difficulty:"Difícil",
-      description:"O mar parece mais pesado, quase hostil. Um navio imponente se aproxima, carregando uma tripulação experiente marcada por batalhas. A pressão do Haki é palpável, deixando claro que estes piratas não são adversários comuns.",
+      description:"Um navio robusto se aproxima. A pressão no ar é sufocante — usuários de Haki observam cada movimento. Esses piratas carregam cicatrizes de inúmeras batalhas.",
       enemies:"Piratas veteranos usuários de Haki",
-      objective:"Vencer o confronto ou forçar uma retirada estratégica"
+      objective:"Vencer o confronto ou recuar estrategicamente"
     },
     {
       name:"Território de Yonkou",
       rarity:"Lendário",
       difficulty:"Extremo",
-      description:"O vento muda repentinamente e o céu escurece. Todos a bordo sentem um peso esmagador no ar. Estas águas pertencem a um Yonkou, e qualquer erro pode significar aniquilação. Cada decisão aqui define o destino da tripulação.",
+      description:"O vento cessa abruptamente. Um peso esmagador toma conta do navio. Estas águas pertencem a um Yonkou, onde até o mar parece obedecer à sua vontade.",
       enemies:"Comandantes de elite de um Imperador dos Mares",
-      objective:"Escapar dessas águas sem ser destruído"
+      objective:"Fugir com vida dessas águas"
     }
   ]
 };
 
+/* ================= RECOMPENSAS ================= */
 const rewards=[
-  {name:"Espada Comum",rarity:"Comum",description:"Uma lâmina simples, forjada para marinheiros e piratas iniciantes.",chance:40},
-  {name:"Baú Raro",rarity:"Raro",description:"Um baú reforçado contendo ouro, mapas antigos e itens valiosos.",chance:25},
-  {name:"Fruta do Diabo – Logia",rarity:"Lendária",description:"Uma fruta extremamente rara que concede o poder de se transformar e controlar um elemento natural.",chance:5}
+  {
+    type:"ouro",
+    name:"Bolsa de Ouro",
+    rarity:"Comum",
+    chance:35,
+    generate:()=>{
+      const gold=Math.floor(Math.random()*200)+100;
+      return {
+        title:`${gold} Berries`,
+        details:[`Moedas obtidas: ${gold} Berries`,`Dinheiro saqueado de marinheiros e piratas derrotados.`]
+      }
+    }
+  },
+  {
+    type:"mapa",
+    name:"Mapa Antigo",
+    rarity:"Raro",
+    chance:20,
+    generate:()=>{
+      const maps=[
+        "Um mapa indicando a localização de um navio afundado na Grand Line.",
+        "Um mapa incompleto mostrando rotas seguras entre ilhas perigosas.",
+        "Um mapa marcado com símbolos estranhos apontando para uma ilha esquecida."
+      ];
+      return {
+        title:"Mapa Antigo",
+        details:[maps[Math.floor(Math.random()*maps.length)],"Pode render tesouros ou novos eventos futuramente."]
+      }
+    }
+  },
+  {
+    type:"arma",
+    name:"Espada Nomeada",
+    rarity:"Raro",
+    chance:20,
+    generate:()=>({
+      title:"Espada – Lâmina do Vento",
+      details:[
+        "Uma espada bem equilibrada, inspirada em armas usadas por espadachins da Grand Line.",
+        "Aumenta a eficácia em combates corpo a corpo."
+      ]
+    })
+  },
+  {
+    type:"fruta",
+    name:"Fruta do Diabo",
+    rarity:"Lendária",
+    chance:5,
+    generate:()=>({
+      title:"Fruta do Diabo – Logia",
+      details:[
+        "Uma fruta extremamente rara capaz de conceder controle total sobre um elemento natural.",
+        "Poder comparável aos grandes nomes do Novo Mundo."
+      ]
+    })
+  }
 ];
 
 function weightedReward(){
@@ -183,12 +239,12 @@ function generateEvent(mode){
 }
 
 function concludeEvent(){
+  const result=pendingReward.generate();
   document.getElementById('rewardCard').classList.remove('hidden');
   document.getElementById('rewardCard').innerHTML=`
     <h3>🎁 Recompensa Obtida</h3>
-    <p><b>${pendingReward.name}</b></p>
-    <p>Raridade: ${pendingReward.rarity}</p>
-    <p>${pendingReward.description}</p>
+    <p><b>${result.title}</b></p>
+    <ul class="reward-list">${result.details.map(d=>`<li>${d}</li>`).join('')}</ul>
   `;
 }
 
