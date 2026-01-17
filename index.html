@@ -6,68 +6,182 @@
 <title>Grand Line RPG – One Piece</title>
 <link href="https://fonts.googleapis.com/css2?family=Pirata+One&family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
 <style>
-body{
-background:linear-gradient(#0a2540,#000814);
-color:#fff;font-family:Roboto, sans-serif;
-text-align:center;margin:0;padding:0
+:root{
+ --gold:#f5c542;--blue:#0a2540;--dark:#000814;--card:#001d3d;
 }
-.container{max-width:900px;margin:auto;padding:20px}
-h1{font-family:'Pirata One';font-size:3em;color:#f5c542}
-button{padding:15px 25px;margin:10px;font-size:1em;border:none;border-radius:10px;background:#f5c542;color:#000;cursor:pointer}
+body{
+ background:linear-gradient(var(--blue),var(--dark));
+ color:#fff;font-family:Roboto, sans-serif;margin:0;text-align:center
+}
+.container{max-width:1000px;margin:auto;padding:20px}
+h1{font-family:'Pirata One';font-size:3em;color:var(--gold)}
+.mode-buttons{margin-bottom:20px}
+button{
+ padding:15px 25px;margin:10px;font-size:1em;
+ border:none;border-radius:12px;
+ background:var(--gold);color:#000;cursor:pointer
+}
+button.secondary{background:#90e0ef}
 button:disabled{opacity:.4;cursor:not-allowed}
-.card{background:#001d3d;border-radius:15px;padding:20px;margin-top:20px;box-shadow:0 0 20px #000}
-img{max-width:100%;border-radius:10px;margin-top:10px}
-.timer{margin-top:15px;color:#90e0ef}
+.card{
+ background:var(--card);border-radius:16px;
+ padding:20px;margin-top:20px;
+ box-shadow:0 0 20px #000;text-align:left
+}
+.card h2,.card h3{text-align:center;color:var(--gold)}
+img{width:100%;max-height:260px;object-fit:cover;border-radius:12px;margin-top:10px}
+.badges span{
+ display:inline-block;background:#003566;
+ padding:6px 12px;border-radius:20px;
+ margin:4px;font-size:.85em
+}
+.timer{margin-top:15px;color:#90e0ef;font-weight:bold}
+.hidden{display:none}
 </style>
 </head>
 <body>
 <div class="container">
 <h1>⚓ Grand Line RPG ⚓</h1>
-<p>Escolha seu tipo de navegação</p>
-<button onclick="startMode('grand')">Navegar pela Grand Line</button>
-<button onclick="startMode('newworld')">Navegação do Novo Mundo</button>
-<div id="event" class="card" style="display:none"></div>
-<div id="reward" class="card" style="display:none"></div>
+<p>Gerador de Eventos Marítimos – One Piece</p>
+
+<div class="mode-buttons">
+ <button onclick="generateEvent('grand')">🌊 Navegar pela Grand Line</button>
+ <button class="secondary" onclick="generateEvent('newworld')">🔥 Navegação do Novo Mundo</button>
+</div>
+
+<div id="eventCard" class="card hidden"></div>
+<div id="rewardCard" class="card hidden"></div>
 <div class="timer" id="timer"></div>
 </div>
 
 <script>
 let cooldown=false;
+let pendingReward=null;
 
-const modes={
+/* ================= EVENTOS ================= */
+const events={
  grand:[
-  {name:"Navio da Marinha",rarity:"Comum",difficulty:"Fácil",desc:"Um navio patrulha da Marinha cruza seu caminho.",enemies:"Fuzileiros navais",objective:"Escapar ou derrotar o capitão",img:"https://i.imgur.com/2s9Z1.jpg"},
-  {name:"Rei do Mar",rarity:"Raro",difficulty:"Médio",desc:"Uma criatura colossal emerge do oceano.",enemies:"Rei do Mar",objective:"Sobreviver ou caçar",img:"https://i.imgur.com/YkZyL.jpg"},
-  {name:"Thriller Bark",rarity:"Lendário",difficulty:"Difícil",desc:"O navio fantasma de Gecko Moria aparece.",enemies:"Zumbis e Moria",objective:"Sobreviver ao terror",img:"https://i.imgur.com/4rX2P.jpg"}
+  {
+   name:"Navio da Marinha",
+   rarity:"Comum",
+   difficulty:"Fácil",
+   description:"Um navio patrulha da Marinha surge no horizonte, levantando suspeitas.",
+   enemies:"Fuzileiros e um Capitão da Marinha",
+   objective:"Evitar confronto ou derrotar o capitão",
+   sound:"https://actions.google.com/sounds/v1/water/boat_creak.ogg",
+   image:"https://i.imgur.com/1ZQZ1Zm.jpg"
+  },
+  {
+   name:"Rei do Mar",
+   rarity:"Raro",
+   difficulty:"Médio",
+   description:"As águas se agitam quando um Rei do Mar emerge.",
+   enemies:"Criatura colossal",
+   objective:"Sobreviver ou caçar a besta",
+   sound:"https://actions.google.com/sounds/v1/animals/monster_growl.ogg",
+   image:"https://i.imgur.com/YkZyL.jpg"
+  },
+  {
+   name:"Thriller Bark",
+   rarity:"Lendário",
+   difficulty:"Difícil",
+   description:"Um navio fantasma envolve a área em névoa densa.",
+   enemies:"Zumbis e Gecko Moria",
+   objective:"Escapar do terror",
+   sound:"https://actions.google.com/sounds/v1/horror/ghostly_whisper.ogg",
+   image:"https://i.imgur.com/4rX2P.jpg"
+  }
  ],
  newworld:[
-  {name:"Piratas do Novo Mundo",rarity:"Raro",difficulty:"Difícil",desc:"Piratas experientes surgem no horizonte.",enemies:"Tripulação veterana",objective:"Derrotar ou negociar",img:"https://i.imgur.com/6E8dA.jpg"},
-  {name:"Yonkou Territory",rarity:"Lendário",difficulty:"Extremo",desc:"Você entrou no território de um Yonkou.",enemies:"Comandantes de elite",objective:"Fugir vivo",img:"https://i.imgur.com/8X1pA.jpg"}
+  {
+   name:"Piratas Veteranos",
+   rarity:"Raro",
+   difficulty:"Difícil",
+   description:"Uma tripulação experiente do Novo Mundo se aproxima.",
+   enemies:"Piratas com Haki",
+   objective:"Vencer o combate ou negociar",
+   sound:"https://actions.google.com/sounds/v1/battle/sword_clash.ogg",
+   image:"https://i.imgur.com/6E8dA.jpg"
+  },
+  {
+   name:"Território de Yonkou",
+   rarity:"Lendário",
+   difficulty:"Extremo",
+   description:"Você invadiu águas dominadas por um Imperador dos Mares.",
+   enemies:"Comandantes de elite",
+   objective:"Fugir com vida",
+   sound:"https://actions.google.com/sounds/v1/ambiences/thunderstorm.ogg",
+   image:"https://i.imgur.com/8X1pA.jpg"
+  }
  ]
 };
 
+/* ================= RECOMPENSAS ================= */
 const rewards=[
- {name:"Espada Comum",desc:"Uma lâmina simples usada por marinheiros."},
- {name:"Baú Raro",desc:"Contém ouro e itens valiosos."},
- {name:"Fruta do Diabo – Logia",desc:"Poder lendário que controla a natureza."}
+ {
+  name:"Espada Comum",
+  rarity:"Comum",
+  description:"Uma lâmina simples usada por marinheiros.",
+  chance:40
+ },
+ {
+  name:"Baú Raro",
+  rarity:"Raro",
+  description:"Contém ouro, mapas e itens valiosos.",
+  chance:25
+ },
+ {
+  name:"Fruta do Diabo – Logia",
+  rarity:"Lendária",
+  description:"Concede o poder de controlar um elemento natural.",
+  chance:5
+ }
 ];
 
-function startMode(mode){
- if(cooldown)return;
- const event=modes[mode][Math.floor(Math.random()*modes[mode].length)];
- const reward=rewards[Math.floor(Math.random()*rewards.length)];
- document.getElementById('event').style.display='block';
- document.getElementById('event').innerHTML=`<h2>${event.name}</h2>
- <p><b>Raridade:</b> ${event.rarity}</p>
- <p><b>Dificuldade:</b> ${event.difficulty}</p>
- <p>${event.desc}</p>
- <p><b>Inimigos:</b> ${event.enemies}</p>
- <p><b>Objetivo:</b> ${event.objective}</p>
- <img src="${event.img}">`;
+/* ================= FUNÇÕES ================= */
+function weightedReward(){
+ const pool=[];
+ rewards.forEach(r=>{
+  for(let i=0;i<r.chance;i++) pool.push(r);
+ });
+ return pool[Math.floor(Math.random()*pool.length)];
+}
 
- document.getElementById('reward').style.display='block';
- document.getElementById('reward').innerHTML=`<h3>Recompensa</h3><p>${reward.name}</p><p>${reward.desc}</p>`;
+function generateEvent(mode){
+ if(cooldown) return;
+ const event=events[mode][Math.floor(Math.random()*events[mode].length)];
+ pendingReward=weightedReward();
+
+ document.getElementById('eventCard').classList.remove('hidden');
+ document.getElementById('rewardCard').classList.add('hidden');
+
+ document.getElementById('eventCard').innerHTML=`
+  <h2>${event.name}</h2>
+  <div class="badges">
+   <span>Raridade: ${event.rarity}</span>
+   <span>Dificuldade: ${event.difficulty}</span>
+  </div>
+  <p>${event.description}</p>
+  <p><b>Inimigos:</b> ${event.enemies}</p>
+  <p><b>Objetivo:</b> ${event.objective}</p>
+  <img src="${event.image}">
+  <div style="text-align:center;margin-top:15px">
+   <button onclick="concludeEvent()">Concluir Evento</button>
+  </div>
+ `;
+
+ new Audio(event.sound).play();
  startCooldown();
+}
+
+function concludeEvent(){
+ document.getElementById('rewardCard').classList.remove('hidden');
+ document.getElementById('rewardCard').innerHTML=`
+  <h3>🎁 Recompensa Obtida</h3>
+  <p><b>${pendingReward.name}</b></p>
+  <p>Raridade: ${pendingReward.rarity}</p>
+  <p>${pendingReward.description}</p>
+ `;
 }
 
 function startCooldown(){
@@ -75,9 +189,13 @@ function startCooldown(){
  let time=Math.floor(Math.random()*600)+300;
  const timer=document.getElementById('timer');
  const interval=setInterval(()=>{
-  timer.innerText=`Aguarde ${time}s para novo evento`;
+  timer.innerText=`⏳ Próximo evento em ${time}s`;
   time--;
-  if(time<=0){clearInterval(interval);cooldown=false;timer.innerText="Você pode navegar novamente!"}
+  if(time<=0){
+   clearInterval(interval);
+   cooldown=false;
+   timer.innerText="⚓ Você pode navegar novamente!";
+  }
  },1000);
 }
 </script>
