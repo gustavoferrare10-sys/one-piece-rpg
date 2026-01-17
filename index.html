@@ -3,12 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>RPG One Piece - Navegação</title>
+<title>RPG One Piece – Navegação</title>
 <style>
 body {
   margin: 0;
-  font-family: 'Trebuchet MS', Arial, sans-serif;
-  background: linear-gradient(#0a4fa3, #021f3f);
+  font-family: Arial, Helvetica, sans-serif;
+  background: linear-gradient(180deg, #0a5fb4, #022b55);
   color: #fff;
 }
 .container {
@@ -16,19 +16,17 @@ body {
   margin: auto;
   padding: 20px;
 }
-h1 {
-  text-align: center;
-}
+h1 { text-align: center; }
 button {
   background: #f5c542;
   border: none;
-  padding: 12px 20px;
-  margin: 10px 5px;
+  padding: 12px 18px;
+  margin: 8px;
   border-radius: 8px;
   font-size: 16px;
   cursor: pointer;
 }
-button:hover { background: #ffd966; }
+button:hover { background: #ffdd77; }
 .card {
   background: rgba(0,0,0,0.35);
   padding: 15px;
@@ -42,102 +40,117 @@ button:hover { background: #ffd966; }
 <div class="container">
 <h1>🌊 RPG One Piece – Navegação</h1>
 
-<button id="grandLineBtn">Navegar pela Grand Line</button>
-<button id="newWorldBtn">Navegação do Novo Mundo</button>
+<button id="grandBtn">Navegar pela Grand Line</button>
+<button id="newBtn">Navegação do Novo Mundo</button>
 
 <div id="evento" class="card hidden"></div>
-<button id="concluirBtn" class="hidden">Concluir Evento</button>
+<button id="concluir" class="hidden">Concluir Evento</button>
 <div id="recompensa" class="card hidden"></div>
 </div>
 
 <script>
-const frutas = {
-  comum: [
-    {
-      nome: 'Bara Bara no Mi',
-      modelo: 'Paramecia',
-      habilidades: 'Permite ao usuário separar o próprio corpo em partes independentes, tornando-o imune a ataques cortantes.'
-    },
-    {
-      nome: 'Sube Sube no Mi',
-      modelo: 'Paramecia',
-      habilidades: 'Deixa o corpo escorregadio, fazendo ataques físicos deslizar e aumentando mobilidade.'
-    }
-  ],
-  rara: [
-    {
-      nome: 'Tori Tori no Mi, Modelo: Falcão',
-      modelo: 'Zoan',
-      habilidades: 'Permite se transformar em um falcão ou forma híbrida, concedendo voo e visão aguçada.'
-    },
-    {
-      nome: 'Ope Ope no Mi',
-      modelo: 'Paramecia',
-      habilidades: 'Cria uma área onde o usuário pode manipular tudo livremente, incluindo corpos e objetos.'
-    }
-  ],
-  lendaria: [
-    {
-      nome: 'Hito Hito no Mi, Modelo: Nika',
-      modelo: 'Zoan Mítica',
-      habilidades: 'Concede um corpo de borracha e liberdade total de combate, com poderes que desafiam a realidade.'
-    },
-    {
-      nome: 'Goro Goro no Mi',
-      modelo: 'Logia',
-      habilidades: 'Permite criar, controlar e se transformar em eletricidade.'
-    }
-  ]
-};
+'use strict';
 
-const recompensas = {
-  grandline: [
-    { tipo: 'Espada', nome: 'Sandai Kitetsu', desc: 'Uma Meito amaldiçoada de alto poder ofensivo.' },
-    { tipo: 'Fruta', raridade: 'comum' },
-    { tipo: 'Baú', desc: 'Baú com 5.000 a 15.000 Berries em ouro.' }
-  ],
-  newworld: [
-    { tipo: 'Espada', nome: 'Gryphon', desc: 'A lendária espada de Shanks, irradiando Haki.' },
-    { tipo: 'Fruta', raridade: 'lendaria' },
-    { tipo: 'Relíquia', desc: 'Fragmento de Poneglyph com segredos do Século Perdido.' }
-  ]
-};
-
-function sortear(arr) {
-  return arr[Math.floor(Math.random() * arr.length)];
+/* ================= UTIL ================= */
+function sortear(lista) {
+  return lista[Math.floor(Math.random() * lista.length)];
 }
 
-let modoAtual = '';
+/* ================= EVENTOS ================= */
+const eventos = {
+  grand: [
+    'Uma frota da Marinha surge no horizonte, patrulhando agressivamente a região.',
+    'Destroços flutuam no mar, indicando uma batalha recente.',
+    'Um Rei dos Mares aparece atraído pelo navio.'
+  ],
+  newworld: [
+    'Um comandante de Yonkou bloqueia sua rota exigindo submissão.',
+    'Uma ilha hostil coberta por Haki selvagem surge diante do navio.',
+    'Uma tempestade anormal do Novo Mundo ameaça destruir tudo.'
+  ]
+};
 
-function gerarEvento(modo) {
-  modoAtual = modo;
-  document.getElementById('evento').innerHTML = `<h3>⚔️ Evento Gerado</h3><p>Você encontrou uma ameaça marítima perigosa durante sua navegação.</p>`;
+/* ================= FRUTAS ================= */
+const frutas = {
+  paramecia: [
+    { nome: 'Kage Kage no Mi', modelo: 'Paramecia', habilidade: 'Manipula sombras, podendo roubá-las e animar corpos.' },
+    { nome: 'Horo Horo no Mi', modelo: 'Paramecia', habilidade: 'Cria fantasmas que drenam a vontade dos inimigos.' },
+    { nome: 'Kilo Kilo no Mi', modelo: 'Paramecia', habilidade: 'Permite alterar o peso do corpo drasticamente.' },
+    { nome: 'Sube Sube no Mi', modelo: 'Paramecia', habilidade: 'Torna o corpo extremamente escorregadio.' }
+  ],
+  especial: [
+    { nome: 'Mochi Mochi no Mi', modelo: 'Paramecia Especial', habilidade: 'Cria e controla mochi com propriedades semelhantes a Logia.' },
+    { nome: 'Ope Ope no Mi', modelo: 'Paramecia Suprema', habilidade: 'Manipulação absoluta dentro de uma área criada.' }
+  ],
+  zoan: [
+    { nome: 'Tori Tori no Mi, Modelo: Fênix', modelo: 'Zoan Mítica', habilidade: 'Transformação em fênix com chamas regenerativas.' },
+    { nome: 'Inu Inu no Mi, Modelo: Okuchi no Makami', modelo: 'Zoan Mítica', habilidade: 'Forma divina lupina com gelo e proteção espiritual.' }
+  ],
+  artificial: [
+    { nome: 'Fruta SMILE', modelo: 'Artificial', habilidade: 'Concede poderes Zoan instáveis.' },
+    { nome: 'SMILE Defeituosa', modelo: 'Artificial Falha', habilidade: 'Efeitos colaterais severos e imprevisíveis.' }
+  ]
+};
+
+/* ================= RECOMPENSAS ================= */
+const recompensas = {
+  grand: [
+    { tipo: 'Tecnica', nome: 'Tekkai Kenpo', origem: 'Rokushiki', desc: 'Endurece o corpo como aço.' },
+    { tipo: 'Tecnica', nome: 'Soru', origem: 'Rokushiki', desc: 'Movimento instantâneo de alta velocidade.' },
+    { tipo: 'Tecnica', nome: 'Geppo', origem: 'Rokushiki', desc: 'Permite andar no ar.' },
+    { tipo: 'Item', nome: 'Cola do Franky', desc: 'Combustível altamente energético.' },
+    { tipo: 'Equipamento', nome: 'Armadura de Wapolmetal', desc: 'Defesa feita de metal especial.' },
+    { tipo: 'Akuma', grupo: 'paramecia' },
+    { tipo: 'Navegacao', nome: 'Mapa da Grand Line', desc: 'Revela rotas perigosas e ilhas raras.' }
+  ],
+  newworld: [
+    { tipo: 'Arma', nome: 'Nidai Kitetsu', desc: 'Espada O Wazamono de imenso poder.' },
+    { tipo: 'Arma', nome: 'Kikoku', desc: 'Espada amaldiçoada usada por Trafalgar Law.' },
+    { tipo: 'Arma', nome: 'Napoleon', desc: 'Homie lendário de Big Mom.' },
+    { tipo: 'Equipamento', nome: 'Armadura Samurai de Wano', desc: 'Compatível com Haki.' },
+    { tipo: 'Equipamento', nome: 'Armadura Germa 66', desc: 'Tecnologia militar avançada.' },
+    { tipo: 'Akuma', grupo: 'especial' },
+    { tipo: 'Akuma', grupo: 'zoan' },
+    { tipo: 'Akuma', grupo: 'artificial' },
+    { tipo: 'Habilidade', nome: 'Voz de Todas as Coisas', desc: 'Permite ouvir entidades e objetos antigos.' },
+    { tipo: 'Haki', nome: 'Observação do Futuro', desc: 'Vislumbra acontecimentos futuros.' },
+    { tipo: 'Relic', nome: 'Cópia do Road Poneglyph', desc: 'Indica o caminho final.' },
+    { tipo: 'Relic', nome: 'Informação sobre Arma Ancestral', desc: 'Conhecimento proibido.' }
+  ]
+};
+
+let modo = '';
+
+function gerarEvento(m) {
+  modo = m;
+  document.getElementById('evento').innerHTML = '<h3>⚔️ Evento</h3><p>' + sortear(eventos[m]) + '</p>';
   document.getElementById('evento').classList.remove('hidden');
-  document.getElementById('concluirBtn').classList.remove('hidden');
+  document.getElementById('concluir').classList.remove('hidden');
   document.getElementById('recompensa').classList.add('hidden');
 }
 
 function concluirEvento() {
-  const recompensa = sortear(recompensas[modoAtual]);
-  let texto = '<h3>🎁 Recompensa Obtida</h3>';
+  const r = sortear(recompensas[modo]);
+  let html = '<h3>🎁 Recompensa</h3>';
 
-  if (recompensa.tipo === 'Fruta') {
-    const fruta = sortear(frutas[recompensa.raridade]);
-    texto += `<p><strong>Fruta do Diabo:</strong> ${fruta.nome}</p>`;
-    texto += `<p><strong>Modelo:</strong> ${fruta.modelo}</p>`;
-    texto += `<p><strong>Habilidades:</strong> ${fruta.habilidades}</p>`;
+  if (r.tipo === 'Akuma') {
+    const fruta = sortear(frutas[r.grupo]);
+    html += `<p><strong>${fruta.nome}</strong></p>`;
+    html += `<p>Modelo: ${fruta.modelo}</p>`;
+    html += `<p>Habilidade: ${fruta.habilidade}</p>`;
   } else {
-    texto += `<p><strong>${recompensa.nome || recompensa.tipo}</strong></p><p>${recompensa.desc}</p>`;
+    html += `<p><strong>${r.nome}</strong></p>`;
+    html += `<p>${r.desc}</p>`;
   }
 
-  document.getElementById('recompensa').innerHTML = texto;
+  document.getElementById('recompensa').innerHTML = html;
   document.getElementById('recompensa').classList.remove('hidden');
 }
 
-window.onload = () => {
-  document.getElementById('grandLineBtn').onclick = () => gerarEvento('grandline');
-  document.getElementById('newWorldBtn').onclick = () => gerarEvento('newworld');
-  document.getElementById('concluirBtn').onclick = concluirEvento;
+window.onload = function () {
+  document.getElementById('grandBtn').onclick = () => gerarEvento('grand');
+  document.getElementById('newBtn').onclick = () => gerarEvento('newworld');
+  document.getElementById('concluir').onclick = concluirEvento;
 };
 </script>
 </body>
