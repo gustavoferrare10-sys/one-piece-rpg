@@ -1,211 +1,185 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>One Piece RPG — Jornada Pirata</title>
-
-<style>
-@import url('https://fonts.googleapis.com/css2?family=Pirata+One&display=swap');
-
-:root {
-  --ouro: #feca57;
-  --mar1: #0a3d62;
-  --mar2: #1e90ff;
-}
-
-body {
-  margin: 0;
-  font-family: 'Trebuchet MS', Arial, sans-serif;
-  background: linear-gradient(180deg, var(--mar1), var(--mar2), var(--mar1));
-  color: #f5f6fa;
-  min-height: 100vh;
-  display: flex;
-  justify-content: center;
-}
-
-.container {
-  width: 100%;
-  max-width: 1100px;
-  padding: 16px;
-}
-
-header {
-  text-align: center;
-  margin-bottom: 20px;
-}
-
-header h1 {
-  font-family: 'Pirata One', cursive;
-  font-size: clamp(32px, 6vw, 48px);
-  color: var(--ouro);
-  text-shadow: 2px 2px 10px #000;
-}
-
-header p {
-  opacity: 0.9;
-}
-
-.buttons {
-  display: flex;
-  gap: 12px;
-  justify-content: center;
-  flex-wrap: wrap;
-  margin-bottom: 20px;
-}
-
-button {
-  padding: 14px 20px;
-  font-size: 16px;
-  border-radius: 14px;
-  border: none;
-  cursor: pointer;
-  background: linear-gradient(#ffeaa7, #fdcb6e);
-  color: #2d3436;
-  font-weight: bold;
-  box-shadow: 0 4px 10px rgba(0,0,0,.6);
-  transition: .2s;
-}
-
-button:hover { transform: scale(1.05); }
-button:disabled { opacity: .5; cursor: not-allowed; }
-
-.main-grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 16px;
-}
-
-@media (min-width: 768px) {
-  .main-grid {
-    grid-template-columns: 1fr 1fr;
-  }
-}
-
-.card {
-  background: rgba(0,0,0,.45);
-  border-radius: 16px;
-  padding: 16px;
-  border-left: 5px solid var(--ouro);
-  animation: fade .4s ease;
-}
-
-@keyframes fade {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-.hidden { display: none; }
-
-.progress {
-  height: 10px;
-  background: rgba(255,255,255,.2);
-  border-radius: 10px;
-  overflow: hidden;
-  margin: 10px 0;
-}
-
-.progress-bar {
-  height: 100%;
-  width: 0%;
-  background: linear-gradient(90deg, #74b9ff, #0984e3);
-}
-
-.log {
-  max-height: 300px;
-  overflow-y: auto;
-}
-
-.log-item {
-  border-bottom: 1px solid rgba(255,255,255,.1);
-  padding: 6px 0;
-  font-size: 14px;
-}
-
-.r-comum { color: #7bed9f; }
-.r-incomum { color: #70a1ff; }
-.r-rara { color: #a29bfe; }
-.r-epica { color: #ff7675; }
-.r-lendaria { color: var(--ouro); text-shadow: 0 0 6px var(--ouro); }
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>RPG One Piece – Navegação</title>
+  <style>
+    :root {
+      --ocean: #0a2540;
+      --sea: #0d3b66;
+      --gold: #f4c430;
+      --rare: #4fc3f7;
+      --epic: #ba68c8;
+      --legendary: #ffd700;
+      --mythic: #ff7043;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: 'Trebuchet MS', sans-serif;
+      background: linear-gradient(180deg, var(--ocean), var(--sea));
+      color: #fff;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      padding: 20px;
+    }
+    .app {
+      max-width: 900px;
+      width: 100%;
+      background: rgba(0,0,0,0.4);
+      border-radius: 20px;
+      border: 2px solid var(--gold);
+      box-shadow: 0 0 40px rgba(0,0,0,0.6);
+      padding: 20px;
+    }
+    h1 {
+      text-align: center;
+      color: var(--gold);
+      text-shadow: 0 0 10px #000;
+    }
+    .buttons {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin-bottom: 20px;
+    }
+    button {
+      background: linear-gradient(145deg, #f4c430, #c99b2b);
+      border: none;
+      border-radius: 12px;
+      padding: 12px 18px;
+      font-size: 1rem;
+      cursor: pointer;
+      color: #000;
+      font-weight: bold;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    button:hover { transform: scale(1.05); box-shadow: 0 0 15px #000; }
+    .card {
+      background: rgba(0,0,0,0.55);
+      border-left: 6px solid var(--gold);
+      border-radius: 14px;
+      padding: 15px;
+      margin-bottom: 15px;
+      animation: fade 0.5s ease;
+    }
+    .hidden { display: none; }
+    .rarity-legendary { color: var(--legendary); text-shadow: 0 0 8px var(--legendary); }
+    .rarity-mythic { color: var(--mythic); text-shadow: 0 0 8px var(--mythic); }
+    @keyframes fade { from {opacity:0; transform:translateY(10px);} to {opacity:1;} }
+    @media (max-width:600px){ h1{font-size:1.4rem;} }
+  </style>
 </head>
 <body>
+  <div class="app">
+    <h1>⚓ Navegação em One Piece ⚓</h1>
 
-<div class="container">
-<header>
-  <h1>One Piece RPG</h1>
-  <p>Forje sua lenda pelos mares</p>
-</header>
+    <div class="buttons">
+      <button onclick="start('grand')">🌊 Grand Line</button>
+      <button onclick="start('new')">🔥 Novo Mundo</button>
+      <button id="finishBtn" class="hidden" onclick="finishEvent()">🏴‍☠️ Concluir Evento</button>
+    </div>
 
-<div class="buttons">
-  <button onclick="gerarEvento('GRAND_LINE')">🌊 Grand Line</button>
-  <button onclick="gerarEvento('NOVO_MUNDO')">🔥 Novo Mundo</button>
-</div>
-
-<div class="progress"><div id="progressBar" class="progress-bar"></div></div>
-
-<div class="main-grid">
-  <div id="eventoBox" class="card hidden"></div>
-
-  <div class="card">
-    <h2>📜 Histórico</h2>
-    <div id="log" class="log"></div>
+    <div id="event" class="card hidden"></div>
+    <div id="reward" class="card hidden"></div>
   </div>
-</div>
-
-<div class="buttons hidden" id="concluirBox">
-  <button onclick="concluirEvento()">⚔️ Concluir Evento</button>
-</div>
-
-<div id="recompensaBox" class="card hidden"></div>
-</div>
 
 <script>
-const EVENTOS = {
-  GRAND_LINE: [
-    { nome:'Navio Pirata', dificuldade:'Média', inimigos:'Piratas', descricao:'Um navio pirata bloqueia sua rota.' },
-    { nome:'Rei dos Mares', dificuldade:'Alta', inimigos:'Monstro marinho', descricao:'Um colosso emerge do oceano.' }
+const rarityTable = {
+  grand: [
+    { r: 'Comum', c: 55 },
+    { r: 'Incomum', c: 25 },
+    { r: 'Raro', c: 12 },
+    { r: 'Épico', c: 6 },
+    { r: 'Lendário', c: 1.8 },
+    { r: 'Mítico', c: 0.2 }
   ],
-  NOVO_MUNDO: [
-    { nome:'Frota Yonkou', dificuldade:'Extrema', inimigos:'Comandantes', descricao:'Uma frota imperial aparece.' }
+  new: [
+    { r: 'Incomum', c: 35 },
+    { r: 'Raro', c: 25 },
+    { r: 'Épico', c: 20 },
+    { r: 'Lendário', c: 15 },
+    { r: 'Mítico', c: 5 }
   ]
 };
 
-const RARITY = ['comum','incomum','rara','epica','lendaria'];
-
-const RECOMPENSAS = {
-  comum:[{nome:'Bandana Pirata',raridade:'comum'}],
-  incomum:[{nome:'Yubashiri',raridade:'incomum'}],
-  rara:[{nome:'Mochi Mochi no Mi',raridade:'rara'}],
-  epica:[{nome:'Tori Tori no Mi - Fênix',raridade:'epica'}],
-  lendaria:[{nome:'Gura Gura no Mi',raridade:'lendaria'}]
+const events = {
+  grand: [
+    { name:'Navio da Marinha', diff:'Média', desc:'Um navio da Marinha patrulha a rota. Canhões prontos para disparar.' },
+    { name:'Rei do Mar', diff:'Alta', desc:'Uma criatura colossal emerge das profundezas para atacar o navio.' },
+    { name:'Navio Fantasma', diff:'Alta', desc:'Um navio amaldiçoado surge na neblina trazendo horrores.' },
+    { name:'Ilha Abandonada', diff:'Baixa', desc:'Restos de uma ilha esquecida, cheia de segredos e tesouros.' }
+  ],
+  new: [
+    { name:'Tripulação Yonko', diff:'Extrema', desc:'Piratas monstruosos protegidos por Haki avançado.' },
+    { name:'Batalha em Wano', diff:'Extrema', desc:'Samurais e piratas entram em confronto total.' },
+    { name:'Criatura do Abismo', diff:'Altíssima', desc:'Algo antigo desperta nas águas profundas do Novo Mundo.' }
+  ]
 };
 
-let progresso = 0;
-let eventoAtual;
+const rewards = {
+  grand: {
+    Comum:[
+      {name:'100~300 Berries',desc:'Dinheiro obtido em saques.'},
+      {name:'Cosmético: Lenço Pirata',desc:'Estilo +5 Moral'}
+    ],
+    Raro:[
+      {name:'Sandai Kitetsu',desc:'Espada amaldiçoada, ataque +8'},
+      {name:'Bara Bara no Mi',desc:'Paramecia – separação do corpo'}
+    ],
+    Lendário:[
+      {name:'Mera Mera no Mi',desc:'Logia – controle total do fogo'}
+    ],
+    Mítico:[
+      {name:'Goro Goro no Mi',desc:'Logia – relâmpago divino'}
+    ]
+  },
+  new: {
+    Épico:[
+      {name:'Kikoku',desc:'Espada amaldiçoada de Trafalgar Law, ataque +15'}
+    ],
+    Lendário:[
+      {name:'Ope Ope no Mi',desc:'Paramecia suprema, cirurgia absoluta'}
+    ],
+    Mítico:[
+      {name:'Tori Tori no Mi – Fênix',desc:'Zoan Mítica – regeneração e chamas azuis'}
+    ]
+  }
+};
 
-function gerarEvento(modo){
-  eventoAtual = EVENTOS[modo][Math.floor(Math.random()*EVENTOS[modo].length)];
-  document.getElementById('eventoBox').innerHTML = `<h2>${eventoAtual.nome}</h2><p><b>Dificuldade:</b> ${eventoAtual.dificuldade}</p><p><b>Inimigos:</b> ${eventoAtual.inimigos}</p><p>${eventoAtual.descricao}</p>`;
-  document.getElementById('eventoBox').classList.remove('hidden');
-  document.getElementById('concluirBox').classList.remove('hidden');
+let currentMode = null;
+let currentReward = null;
+
+function rollRarity(mode){
+  let roll = Math.random()*100;
+  let sum = 0;
+  for(const e of rarityTable[mode]){
+    sum += e.c;
+    if(roll <= sum) return e.r;
+  }
+  return rarityTable[mode][0].r;
 }
 
-function concluirEvento(){
-  progresso = Math.min(100, progresso + 20);
-  document.getElementById('progressBar').style.width = progresso + '%';
+function start(mode){
+  currentMode = mode;
+  document.getElementById('reward').classList.add('hidden');
+  const ev = events[mode][Math.floor(Math.random()*events[mode].length)];
+  document.getElementById('event').innerHTML = `<h3>${ev.name}</h3><p><b>Dificuldade:</b> ${ev.diff}</p><p>${ev.desc}</p>`;
+  document.getElementById('event').classList.remove('hidden');
+  document.getElementById('finishBtn').classList.remove('hidden');
+  currentReward = null;
+}
 
-  const raridade = RARITY[Math.floor(Math.random()*RARITY.length)];
-  const recompensa = RECOMPENSAS[raridade][0];
-
-  document.getElementById('recompensaBox').innerHTML = `<h2>🎁 Recompensa</h2><p class="r-${raridade}">${recompensa.nome}</p>`;
-  document.getElementById('recompensaBox').classList.remove('hidden');
-
-  const log = document.getElementById('log');
-  const item = document.createElement('div');
-  item.className = 'log-item r-'+raridade;
-  item.innerText = recompensa.nome;
-  log.prepend(item);
+function finishEvent(){
+  const rarity = rollRarity(currentMode);
+  const pool = rewards[currentMode][rarity] || rewards[currentMode]['Comum'];
+  const item = pool[Math.floor(Math.random()*pool.length)];
+  document.getElementById('reward').innerHTML = `<h3 class="rarity-${rarity.toLowerCase()}">${item.name}</h3><p><b>Raridade:</b> ${rarity}</p><p>${item.desc}</p>`;
+  document.getElementById('reward').classList.remove('hidden');
+  document.getElementById('finishBtn').classList.add('hidden');
 }
 </script>
 </body>
