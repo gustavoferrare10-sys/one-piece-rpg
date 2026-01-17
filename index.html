@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>One Piece RPG – Eventos Marítimos</title>
+
+<style>
+body{
+  margin:0;
+  font-family:'Trebuchet MS',serif;
+  background:radial-gradient(circle at top,#1e90ff,#000814);
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  height:100vh;
+}
+
+.container{
+  background:#f5deb3;
+  width:92%;
+  max-width:450px;
+  border-radius:22px;
+  box-shadow:0 0 25px rgba(0,0,0,0.6);
+  padding:22px;
+  text-align:center;
+}
+
+h1{
+  color:#3c1e0a;
+  margin-bottom:10px;
+}
+
+button{
+  width:100%;
+  padding:14px;
+  margin-top:10px;
+  border:none;
+  border-radius:14px;
+  font-size:17px;
+  font-weight:bold;
+  cursor:pointer;
+}
+
+#btnExplorar{background:#b22222;color:#fff;}
+#btnConcluir{background:#8b4513;color:#fff;display:none;}
+
+.resultado{
+  margin-top:18px;
+  background:#fff8dc;
+  border-radius:14px;
+  padding:15px;
+  min-height:170px;
+  color:#3c1e0a;
+  font-size:16px;
+}
+
+.tag{
+  display:inline-block;
+  padding:4px 10px;
+  border-radius:12px;
+  font-size:13px;
+  margin:4px;
+  background:#d2b48c;
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+  <h1>⚓ Jornada Marítima ⚓</h1>
+  <button id="btnExplorar" onclick="gerarEvento()">Explorar o Mar</button>
+  <button id="btnConcluir" onclick="concluirEvento()">Concluir Evento</button>
+
+  <div class="resultado" id="resultado">
+    🌊 Clique em <b>Explorar o Mar</b> para iniciar sua aventura!
+  </div>
+</div>
+
+<!-- Sons -->
+<audio id="somComum" src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_2c8f4fa3a2.mp3"></audio>
+<audio id="somRaro" src="https://cdn.pixabay.com/download/audio/2022/10/03/audio_5a8f6c5f09.mp3"></audio>
+<audio id="somLendario" src="https://cdn.pixabay.com/download/audio/2022/03/10/audio_1dff6a76b3.mp3"></audio>
+
+<script>
+let eventoAtual = null;
+let recompensaAtual = null;
+
+const eventos = [
+  {nome:"Barcos da Marinha", raridade:"Comum", dificuldade:"Baixa", som:"somComum"},
+  {nome:"Cardume de Piranhas", raridade:"Comum", dificuldade:"Baixa", som:"somComum"},
+  {nome:"Barcos Piratas", raridade:"Raro", dificuldade:"Média", som:"somRaro"},
+  {nome:"Navio Afundado", raridade:"Raro", dificuldade:"Média", som:"somRaro"},
+  {nome:"Rei do Mar", raridade:"Mítico", dificuldade:"Alta", som:"somRaro"},
+  {nome:"Megalodon", raridade:"Mítico", dificuldade:"Alta", som:"somRaro"},
+  {nome:"Thriller Bark", raridade:"Lendário", dificuldade:"Extrema", som:"somLendario"},
+  {nome:"Navio Fantasma", raridade:"Lendário", dificuldade:"Extrema", som:"somLendario"}
+];
+
+const recompensas = [
+  {nome:"Espada Comum", chance:25, itens:["Katana simples","Sabre da Marinha"]},
+  {nome:"Baú Comum", chance:20, itens:["5.000 Berries","Mapa antigo"]},
+  {nome:"Fruta do Diabo Comum", chance:10, itens:["Kilo Kilo no Mi","Beri Beri no Mi"]},
+
+  {nome:"Espada Rara", chance:12, itens:["Yubashiri","Shigure"]},
+  {nome:"Baú Raro", chance:10, itens:["20.000 Berries","Dial de Impacto"]},
+  {nome:"Fruta do Diabo Rara", chance:8, itens:["Mero Mero no Mi","Tori Tori no Mi"]},
+
+  {nome:"Espada Mítica", chance:5, itens:["Sandai Kitetsu","Shusui (danificada)"]},
+  {nome:"Baú Mítico", chance:4, itens:["100.000 Berries","Vivre Card raro"]},
+  {nome:"Fruta do Diabo Mítica", chance:3, itens:["Ope Ope no Mi","Ito Ito no Mi"]},
+
+  {nome:"Espada Lendária", chance:1.5, itens:["Enma","Ace"]},
+  {nome:"Baú Lendário", chance:1, itens:["1.000.000 Berries","Mapa do Road Poneglyph"]},
+  {nome:"Fruta do Diabo Lendária", chance:0.5, itens:["Gura Gura no Mi","Magu Magu no Mi"]}
+];
+
+function gerarRecompensa(){
+  const total = recompensas.reduce((s,r)=>s+r.chance,0);
+  let roll = Math.random()*total;
+  for(let r of recompensas){
+    if(roll<r.chance){
+      const item = r.itens[Math.floor(Math.random()*r.itens.length)];
+      return {categoria:r.nome,item:item};
+    }
+    roll-=r.chance;
+  }
+}
+
+function gerarEvento(){
+  eventoAtual = eventos[Math.floor(Math.random()*eventos.length)];
+  recompensaAtual = gerarRecompensa();
+
+  document.getElementById("resultado").innerHTML = `
+    <b>🌊 Evento Encontrado:</b><br>${eventoAtual.nome}<br><br>
+    <span class='tag'>Raridade: ${eventoAtual.raridade}</span>
+    <span class='tag'>Dificuldade: ${eventoAtual.dificuldade}</span><br><br>
+    🎁 <i>Recompensa oculta até concluir o evento</i>
+  `;
+
+  document.getElementById(eventoAtual.som).play();
+  document.getElementById("btnConcluir").style.display = "block";
+}
+
+function concluirEvento(){
+  document.getElementById("resultado").innerHTML += `
+    <hr><b>🎁 Recompensa Obtida:</b><br>
+    ${recompensaAtual.categoria}<br><i>${recompensaAtual.item}</i>
+  `;
+  document.getElementById("btnConcluir").style.display = "none";
+}
+</script>
+
+</body>
+</html>
