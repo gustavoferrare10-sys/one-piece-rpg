@@ -3,151 +3,221 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>One Piece RPG – Eventos Marítimos</title>
+<title>One Piece RPG – Grand Line</title>
 
 <style>
+:root{
+  --mar:#0b3c5d;
+  --ouro:#d4af37;
+  --perg:#f5deb3;
+  --escuro:#1a1a1a;
+}
+
 body{
   margin:0;
   font-family:'Trebuchet MS',serif;
-  background:radial-gradient(circle at top,#1e90ff,#000814);
+  background:linear-gradient(180deg,#001d3d,#003566,#0b3c5d);
+  min-height:100vh;
   display:flex;
   justify-content:center;
   align-items:center;
-  height:100vh;
 }
 
 .container{
-  background:#f5deb3;
-  width:92%;
-  max-width:450px;
-  border-radius:22px;
-  box-shadow:0 0 25px rgba(0,0,0,0.6);
+  background:var(--perg);
+  width:94%;
+  max-width:520px;
+  border-radius:26px;
+  box-shadow:0 0 40px rgba(0,0,0,.7);
   padding:22px;
-  text-align:center;
 }
 
-h1{
-  color:#3c1e0a;
+header{
+  text-align:center;
   margin-bottom:10px;
+}
+
+header h1{
+  margin:0;
+  color:#3c1e0a;
+}
+
+header small{
+  color:#5a3a1a;
 }
 
 button{
   width:100%;
-  padding:14px;
-  margin-top:10px;
+  padding:16px;
+  margin-top:12px;
   border:none;
-  border-radius:14px;
-  font-size:17px;
+  border-radius:18px;
+  font-size:18px;
   font-weight:bold;
   cursor:pointer;
 }
 
-#btnExplorar{background:#b22222;color:#fff;}
-#btnConcluir{background:#8b4513;color:#fff;display:none;}
+#btnExplorar{background:#b22222;color:white;}
+#btnConcluir{background:#8b4513;color:white;display:none;}
 
-.resultado{
-  margin-top:18px;
+.card{
   background:#fff8dc;
-  border-radius:14px;
-  padding:15px;
-  min-height:170px;
-  color:#3c1e0a;
-  font-size:16px;
+  border-radius:18px;
+  padding:16px;
+  margin-top:16px;
+  color:#2b1608;
+  min-height:220px;
 }
 
-.tag{
+.badge{
   display:inline-block;
-  padding:4px 10px;
-  border-radius:12px;
+  padding:6px 12px;
+  border-radius:14px;
+  margin:4px 4px 8px 0;
   font-size:13px;
-  margin:4px;
-  background:#d2b48c;
+  background:#e0c68d;
+}
+
+hr{border:none;border-top:1px dashed #a67c52;margin:12px 0;}
+
+.titulo{
+  font-weight:bold;
+  font-size:17px;
+}
+
+.recompensa{
+  background:#f0e2b6;
+  border-radius:14px;
+  padding:12px;
+  margin-top:10px;
 }
 </style>
 </head>
 <body>
 
 <div class="container">
-  <h1>⚓ Jornada Marítima ⚓</h1>
-  <button id="btnExplorar" onclick="gerarEvento()">Explorar o Mar</button>
-  <button id="btnConcluir" onclick="concluirEvento()">Concluir Evento</button>
+<header>
+  <h1>⚓ Grand Line RPG ⚓</h1>
+  <small>Sistema de Eventos Marítimos – One Piece</small>
+</header>
 
-  <div class="resultado" id="resultado">
-    🌊 Clique em <b>Explorar o Mar</b> para iniciar sua aventura!
-  </div>
+<button id="btnExplorar" onclick="gerarEvento()">🌊 Navegar pela Grand Line</button>
+<button id="btnConcluir" onclick="concluirEvento()">⚔️ Concluir Evento</button>
+
+<div class="card" id="resultado">
+  🏴‍☠️ Prepare sua tripulação e enfrente os mares!
+</div>
 </div>
 
-<!-- Sons -->
-<audio id="somComum" src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_2c8f4fa3a2.mp3"></audio>
-<audio id="somRaro" src="https://cdn.pixabay.com/download/audio/2022/10/03/audio_5a8f6c5f09.mp3"></audio>
-<audio id="somLendario" src="https://cdn.pixabay.com/download/audio/2022/03/10/audio_1dff6a76b3.mp3"></audio>
+<!-- Sons temáticos -->
+<audio id="somMar" src="https://cdn.pixabay.com/download/audio/2022/02/23/audio_6b2f1c06d6.mp3"></audio>
+<audio id="somTensao" src="https://cdn.pixabay.com/download/audio/2022/11/21/audio_6bb6c4b7ab.mp3"></audio>
+<audio id="somEpico" src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_3fda1f62c0.mp3"></audio>
 
 <script>
-let eventoAtual = null;
-let recompensaAtual = null;
+let eventoAtual=null;
+let recompensaAtual=null;
 
-const eventos = [
-  {nome:"Barcos da Marinha", raridade:"Comum", dificuldade:"Baixa", som:"somComum"},
-  {nome:"Cardume de Piranhas", raridade:"Comum", dificuldade:"Baixa", som:"somComum"},
-  {nome:"Barcos Piratas", raridade:"Raro", dificuldade:"Média", som:"somRaro"},
-  {nome:"Navio Afundado", raridade:"Raro", dificuldade:"Média", som:"somRaro"},
-  {nome:"Rei do Mar", raridade:"Mítico", dificuldade:"Alta", som:"somRaro"},
-  {nome:"Megalodon", raridade:"Mítico", dificuldade:"Alta", som:"somRaro"},
-  {nome:"Thriller Bark", raridade:"Lendário", dificuldade:"Extrema", som:"somLendario"},
-  {nome:"Navio Fantasma", raridade:"Lendário", dificuldade:"Extrema", som:"somLendario"}
+const eventos=[
+ {nome:"Patrulha da Marinha",raridade:"Comum",dificuldade:"Baixa",descricao:"Navios da Marinha patrulham a rota.",som:"somMar"},
+ {nome:"Bando Pirata Iniciante",raridade:"Comum",dificuldade:"Baixa",descricao:"Piratas buscando fama e saque.",som:"somMar"},
+ {nome:"Navio Afundado",raridade:"Raro",dificuldade:"Média",descricao:"Destroços antigos escondem tesouros.",som:"somTensao"},
+ {nome:"Rei do Mar",raridade:"Mítico",dificuldade:"Alta",descricao:"Uma criatura colossal emerge das profundezas.",som:"somTensao"},
+ {nome:"Megalodon",raridade:"Mítico",dificuldade:"Alta",descricao:"Predador lendário do oceano.",som:"somTensao"},
+ {nome:"Navio Fantasma",raridade:"Lendário",dificuldade:"Extrema",descricao:"Uma embarcação amaldiçoada vaga pelos mares.",som:"somEpico"},
+ {nome:"Thriller Bark",raridade:"Lendário",dificuldade:"Extrema",descricao:"O navio-ilha do lendário Gecko Moria.",som:"somEpico"}
 ];
 
-const recompensas = [
-  {nome:"Espada Comum", chance:25, itens:["Katana simples","Sabre da Marinha"]},
-  {nome:"Baú Comum", chance:20, itens:["5.000 Berries","Mapa antigo"]},
-  {nome:"Fruta do Diabo Comum", chance:10, itens:["Kilo Kilo no Mi","Beri Beri no Mi"]},
+const recompensas=[
+ {nome:"Espada Comum",chance:25,itens:[
+   {item:"Katana simples",info:"Lâmina básica usada por piratas comuns."},
+   {item:"Sabre da Marinha",info:"Espada padrão dos soldados da Marinha."}
+ ]},
+ {nome:"Baú Comum",chance:20,itens:[
+   {item:"5.000 Berries",info:"Moeda padrão dos mares."},
+   {item:"Mapa Simples",info:"Mapa incompleto de rotas marítimas."}
+ ]},
+ {nome:"Fruta do Diabo Comum",chance:10,itens:[
+   {item:"Kilo Kilo no Mi",info:"Paramecia – controla o peso do corpo. Usuária: Miss Valentine."},
+   {item:"Beri Beri no Mi",info:"Paramecia – corpo se divide em esferas. Usuário: Very Good."}
+ ]},
 
-  {nome:"Espada Rara", chance:12, itens:["Yubashiri","Shigure"]},
-  {nome:"Baú Raro", chance:10, itens:["20.000 Berries","Dial de Impacto"]},
-  {nome:"Fruta do Diabo Rara", chance:8, itens:["Mero Mero no Mi","Tori Tori no Mi"]},
+ {nome:"Espada Rara",chance:12,itens:[
+   {item:"Yubashiri",info:"Meito amaldiçoada. Usuário: Roronoa Zoro (antiga)."},
+   {item:"Shigure",info:"Espada famosa de Wano. Usuário: Tashigi."}
+ ]},
+ {nome:"Baú Raro",chance:10,itens:[
+   {item:"20.000 Berries",info:"Recompensa significativa."},
+   {item:"Dial de Impacto",info:"Tecnologia de Skypiea que armazena energia."}
+ ]},
+ {nome:"Fruta do Diabo Rara",chance:8,itens:[
+   {item:"Mero Mero no Mi",info:"Paramecia – petrificação por paixão. Usuária: Boa Hancock."},
+   {item:"Tori Tori no Mi – Falcão",info:"Zoan – transformação aérea. Usuário: Pell."}
+ ]},
 
-  {nome:"Espada Mítica", chance:5, itens:["Sandai Kitetsu","Shusui (danificada)"]},
-  {nome:"Baú Mítico", chance:4, itens:["100.000 Berries","Vivre Card raro"]},
-  {nome:"Fruta do Diabo Mítica", chance:3, itens:["Ope Ope no Mi","Ito Ito no Mi"]},
+ {nome:"Espada Mítica",chance:5,itens:[
+   {item:"Sandai Kitetsu",info:"Meito amaldiçoada sedenta por sangue."},
+   {item:"Shusui (danificada)",info:"Espada negra lendária de Ryuma."}
+ ]},
+ {nome:"Baú Mítico",chance:4,itens:[
+   {item:"100.000 Berries",info:"Tesouro raro."},
+   {item:"Vivre Card",info:"Aponta para a pessoa ligada a ele."}
+ ]},
+ {nome:"Fruta do Diabo Mítica",chance:3,itens:[
+   {item:"Ope Ope no Mi",info:"Paramecia Suprema – cirurgia absoluta. Usuário: Trafalgar Law."},
+   {item:"Ito Ito no Mi",info:"Paramecia – controle de fios. Usuário: Doflamingo."}
+ ]},
 
-  {nome:"Espada Lendária", chance:1.5, itens:["Enma","Ace"]},
-  {nome:"Baú Lendário", chance:1, itens:["1.000.000 Berries","Mapa do Road Poneglyph"]},
-  {nome:"Fruta do Diabo Lendária", chance:0.5, itens:["Gura Gura no Mi","Magu Magu no Mi"]}
+ {nome:"Espada Lendária",chance:1.5,itens:[
+   {item:"Enma",info:"Espada que drena Haki. Usuário: Roronoa Zoro."}
+ ]},
+ {nome:"Baú Lendário",chance:1,itens:[
+   {item:"1.000.000 Berries",info:"Fortuna digna de um imperador."},
+   {item:"Mapa do Road Poneglyph",info:"Pista para Laugh Tale."}
+ ]},
+ {nome:"Fruta do Diabo Lendária",chance:0.5,itens:[
+   {item:"Gura Gura no Mi",info:"Paramecia – destruição sísmica. Usuário: Edward Newgate."},
+   {item:"Magu Magu no Mi",info:"Logia – magma absoluto. Usuário: Akainu."},
+   {item:"Uo Uo no Mi – Seiryu",info:"Zoan Mítica – dragão. Usuário: Kaido."}
+ ]}
 ];
 
 function gerarRecompensa(){
-  const total = recompensas.reduce((s,r)=>s+r.chance,0);
-  let roll = Math.random()*total;
-  for(let r of recompensas){
-    if(roll<r.chance){
-      const item = r.itens[Math.floor(Math.random()*r.itens.length)];
-      return {categoria:r.nome,item:item};
-    }
-    roll-=r.chance;
-  }
+ const total=recompensas.reduce((s,r)=>s+r.chance,0);
+ let roll=Math.random()*total;
+ for(let r of recompensas){
+   if(roll<r.chance){
+     const it=r.itens[Math.floor(Math.random()*r.itens.length)];
+     return {categoria:r.nome,item:it.item,info:it.info};
+   }
+   roll-=r.chance;
+ }
 }
 
 function gerarEvento(){
-  eventoAtual = eventos[Math.floor(Math.random()*eventos.length)];
-  recompensaAtual = gerarRecompensa();
-
-  document.getElementById("resultado").innerHTML = `
-    <b>🌊 Evento Encontrado:</b><br>${eventoAtual.nome}<br><br>
-    <span class='tag'>Raridade: ${eventoAtual.raridade}</span>
-    <span class='tag'>Dificuldade: ${eventoAtual.dificuldade}</span><br><br>
-    🎁 <i>Recompensa oculta até concluir o evento</i>
-  `;
-
-  document.getElementById(eventoAtual.som).play();
-  document.getElementById("btnConcluir").style.display = "block";
+ eventoAtual=eventos[Math.floor(Math.random()*eventos.length)];
+ recompensaAtual=gerarRecompensa();
+ document.getElementById("resultado").innerHTML=`
+   <div class='titulo'>🌊 ${eventoAtual.nome}</div>
+   <span class='badge'>Raridade: ${eventoAtual.raridade}</span>
+   <span class='badge'>Dificuldade: ${eventoAtual.dificuldade}</span>
+   <p>${eventoAtual.descricao}</p>
+   <hr>
+   🎁 Recompensa oculta até a conclusão
+ `;
+ document.getElementById(eventoAtual.som).play();
+ document.getElementById("btnConcluir").style.display="block";
 }
 
 function concluirEvento(){
-  document.getElementById("resultado").innerHTML += `
-    <hr><b>🎁 Recompensa Obtida:</b><br>
-    ${recompensaAtual.categoria}<br><i>${recompensaAtual.item}</i>
-  `;
-  document.getElementById("btnConcluir").style.display = "none";
+ document.getElementById("resultado").innerHTML+=`
+   <div class='recompensa'>
+     <b>🎁 ${recompensaAtual.categoria}</b><br>
+     <i>${recompensaAtual.item}</i><br>
+     <small>${recompensaAtual.info}</small>
+   </div>
+ `;
+ document.getElementById("btnConcluir").style.display="none";
 }
 </script>
 
