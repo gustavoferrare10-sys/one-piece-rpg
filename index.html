@@ -35,6 +35,10 @@ button{
   color:#000;
   font-weight:bold;
   cursor:pointer;
+  transition:transform 0.2s;
+}
+button:hover:not(:disabled){
+  transform:scale(1.02);
 }
 button:disabled{
   background:#888;
@@ -64,25 +68,109 @@ button:disabled{
   margin-bottom:6px;
 }
 
-/* PROGRESSO */
+/* PROGRESSO ANIMADO */
 .progress-container{
   background:#003366;
   border-radius:12px;
-  height:28px;
+  height:35px;
   position:relative;
   overflow:hidden;
   margin:15px 0;
+  box-shadow:inset 0 2px 8px rgba(0,0,0,0.4);
 }
 .progress-bar{
   height:100%;
   width:0%;
-  background:linear-gradient(90deg,#ff0000,#ff9900);
+  background:linear-gradient(90deg,#ff0000,#ff9900,#ffcc00);
+  background-size:200% 100%;
+  transition:width 0.8s ease-out;
+  animation:shimmer 2s linear infinite;
+  position:relative;
 }
+
+@keyframes shimmer{
+  0%{background-position:200% 0}
+  100%{background-position:-200% 0}
+}
+
 .luffy{
   position:absolute;
-  top:-3px;
+  top:50%;
+  transform:translateY(-50%);
   left:0%;
-  font-size:26px;
+  font-size:28px;
+  transition:left 0.8s ease-out;
+  animation:bounce 0.5s ease-in-out infinite;
+  filter:drop-shadow(2px 2px 4px rgba(0,0,0,0.5));
+  z-index:10;
+}
+
+@keyframes bounce{
+  0%, 100%{transform:translateY(-50%) translateX(0)}
+  50%{transform:translateY(-55%) translateX(2px)}
+}
+
+/* PARTÍCULAS DE POEIRA */
+.dust{
+  position:absolute;
+  width:8px;
+  height:8px;
+  background:rgba(255,255,255,0.6);
+  border-radius:50%;
+  animation:dustFloat 1s ease-out forwards;
+  pointer-events:none;
+}
+
+@keyframes dustFloat{
+  0%{
+    transform:translate(0,0) scale(1);
+    opacity:1;
+  }
+  100%{
+    transform:translate(-30px,10px) scale(0);
+    opacity:0;
+  }
+}
+
+/* ANIMAÇÃO DE RECOMPENSA */
+@keyframes rewardPop{
+  0%{transform:scale(0) rotate(-180deg);opacity:0}
+  50%{transform:scale(1.1) rotate(10deg)}
+  100%{transform:scale(1) rotate(0);opacity:1}
+}
+
+.reward-animate{
+  animation:rewardPop 0.6s ease-out;
+}
+
+/* EFEITO DE BRILHO NA BARRA */
+.progress-bar::after{
+  content:'';
+  position:absolute;
+  top:0;
+  left:-100%;
+  width:100%;
+  height:100%;
+  background:linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+  animation:shine 3s ease-in-out infinite;
+}
+
+@keyframes shine{
+  0%{left:-100%}
+  50%, 100%{left:200%}
+}
+
+/* PROGRESSO TEXT */
+.progress-text{
+  position:absolute;
+  top:50%;
+  left:50%;
+  transform:translate(-50%, -50%);
+  font-size:14px;
+  font-weight:bold;
+  color:#fff;
+  text-shadow:1px 1px 3px rgba(0,0,0,0.8);
+  z-index:5;
 }
 </style>
 </head>
@@ -95,8 +183,9 @@ button:disabled{
 <button id="btnGrand">🌊 Grand Line</button>
 <button id="btnNovo">🔥 Novo Mundo</button>
 
-<div class="progress-container">
+<div class="progress-container" id="progressContainer">
   <div class="progress-bar" id="barra"></div>
+  <div class="progress-text" id="progressText">0 / 5 Eventos</div>
   <div class="luffy" id="luffy">🏃‍♂️</div>
 </div>
 
@@ -129,7 +218,6 @@ var eventos = {
 /* ================= RECOMPENSAS (TODAS) ================= */
 var recompensas = {
 grand:[
-  /* ARMAS */
   {nome:"Katana Comum",tipo:"Arma",raridade:"comum",efeito:"Força +5"},
   {nome:"Yubashiri",tipo:"Espada",raridade:"raro",efeito:"Força +7"},
   {nome:"Sandaí Kitetsu",tipo:"Espada",raridade:"epico",efeito:"Força +10"},
@@ -138,8 +226,6 @@ grand:[
   {nome:"Martelo de Guerra",tipo:"Arma",raridade:"comum",efeito:"Força +6"},
   {nome:"Lança Pirata",tipo:"Arma",raridade:"raro",efeito:"Força +8"},
   {nome:"Punhos de Ferro",tipo:"Arma",raridade:"epico",efeito:"Força +9"},
-
-  /* COSMÉTICOS */
   {nome:"Capa Pirata",tipo:"Cosmético",raridade:"comum",efeito:"Resistência +5"},
   {nome:"Casaco da Marinha",tipo:"Cosmético",raridade:"raro",efeito:"Resistência +7"},
   {nome:"Óculos de Atirador",tipo:"Cosmético",raridade:"raro",efeito:"Precisão +7"},
@@ -147,8 +233,6 @@ grand:[
   {nome:"Braceletes de Luta",tipo:"Cosmético",raridade:"epico",efeito:"Força +10"},
   {nome:"Botas de Navegação",tipo:"Cosmético",raridade:"raro",efeito:"Velocidade +6"},
   {nome:"Capa de Explorador",tipo:"Cosmético",raridade:"raro",efeito:"Velocidade +7"},
-
-  /* AKUMA NO MI */
   {nome:"Bara Bara no Mi",tipo:"Akuma no Mi",raridade:"epico",efeito:"Imunidade a cortes"},
   {nome:"Hana Hana no Mi",tipo:"Akuma no Mi",raridade:"lendario",efeito:"Criar membros"},
   {nome:"Doru Doru no Mi",tipo:"Akuma no Mi",raridade:"raro",efeito:"Criar cera"},
@@ -161,7 +245,6 @@ grand:[
 ],
 
 novo:[
-  /* ESPADAS / ARMAS */
   {nome:"Wado Ichimonji",tipo:"Espada",raridade:"lendario",efeito:"Força +18"},
   {nome:"Enma",tipo:"Espada",raridade:"lendario",efeito:"Força +20"},
   {nome:"Shusui",tipo:"Espada",raridade:"lendario",efeito:"Força +17"},
@@ -170,8 +253,6 @@ novo:[
   {nome:"Murakumogiri",tipo:"Arma",raridade:"mitico",efeito:"Força +25"},
   {nome:"Napoleon",tipo:"Arma",raridade:"mitico",efeito:"Força +22"},
   {nome:"Bisento do Barba Branca",tipo:"Arma",raridade:"mitico",efeito:"Força +24"},
-
-  /* COSMÉTICOS */
   {nome:"Casaco de Yonko",tipo:"Cosmético",raridade:"lendario",efeito:"Resistência +18"},
   {nome:"Traje CP0",tipo:"Cosmético",raridade:"epico",efeito:"Velocidade +15"},
   {nome:"Manto do Barba Branca",tipo:"Cosmético",raridade:"mitico",efeito:"Força +20"},
@@ -179,8 +260,6 @@ novo:[
   {nome:"Traje Samurai de Wano",tipo:"Cosmético",raridade:"epico",efeito:"Força +15"},
   {nome:"Roupa Tecnológica Germa 66",tipo:"Cosmético",raridade:"lendario",efeito:"Velocidade +20"},
   {nome:"Luvas de Haki Avançado",tipo:"Cosmético",raridade:"mitico",efeito:"Força +22"},
-
-  /* AKUMA NO MI */
   {nome:"Ope Ope no Mi",tipo:"Akuma no Mi",raridade:"mitico",efeito:"Manipular espaço"},
   {nome:"Gura Gura no Mi",tipo:"Akuma no Mi",raridade:"mitico",efeito:"Tremores destrutivos"},
   {nome:"Magu Magu no Mi",tipo:"Akuma no Mi",raridade:"mitico",efeito:"Magma absoluto"},
@@ -207,11 +286,52 @@ function carregarEstado(){
   cooldownFim = c ? parseInt(c,10) : 0;
 }
 
+/* ================= ANIMAÇÕES ================= */
+function criarPoeira(){
+  var container = document.getElementById("progressContainer");
+  var luffy = document.getElementById("luffy");
+  var rect = luffy.getBoundingClientRect();
+  var containerRect = container.getBoundingClientRect();
+  
+  var dust = document.createElement("div");
+  dust.className = "dust";
+  dust.style.left = (rect.left - containerRect.left) + "px";
+  dust.style.top = (rect.top - containerRect.top + 15) + "px";
+  
+  container.appendChild(dust);
+  
+  setTimeout(function(){
+    container.removeChild(dust);
+  }, 1000);
+}
+
+var dustInterval = null;
+
+function iniciarAnimacaoPoeira(){
+  pararAnimacaoPoeira();
+  dustInterval = setInterval(criarPoeira, 200);
+}
+
+function pararAnimacaoPoeira(){
+  if(dustInterval){
+    clearInterval(dustInterval);
+    dustInterval = null;
+  }
+}
+
 /* ================= UI ================= */
 function atualizarBarra(){
-  var p = (eventosConcluidos % 5) * 20;
+  var progresso = eventosConcluidos % 5;
+  var p = progresso * 20;
+  
   document.getElementById("barra").style.width = p + "%";
-  document.getElementById("luffy").style.left = p + "%";
+  document.getElementById("luffy").style.left = (p === 0 ? 0 : p - 3) + "%";
+  document.getElementById("progressText").textContent = progresso + " / 5 Eventos";
+  
+  if(p > 0){
+    iniciarAnimacaoPoeira();
+    setTimeout(pararAnimacaoPoeira, 1000);
+  }
 }
 
 function podeAgir(){
@@ -246,14 +366,16 @@ function concluirEvento(){
   atualizarBarra();
 
   var r = recompensas[modoAtual][Math.floor(Math.random()*recompensas[modoAtual].length)];
-  document.getElementById("recompensa").innerHTML =
+  var rewardDiv = document.getElementById("recompensa");
+  
+  rewardDiv.innerHTML =
     "<h3>🎁 Recompensa</h3>"+
     "<span class='badge "+r.raridade+"'>"+r.raridade.toUpperCase()+"</span>"+
     "<p><b>Item:</b> "+r.nome+"</p>"+
     "<p><b>Tipo:</b> "+r.tipo+"</p>"+
     "<p><b>Efeito:</b> "+r.efeito+"</p>";
 
-  document.getElementById("recompensa").className="card";
+  rewardDiv.className="card reward-animate";
   document.getElementById("btnConcluir").className="hidden";
 }
 
