@@ -3,147 +3,141 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Grand Line RPG – One Piece</title>
-<link href="https://fonts.googleapis.com/css2?family=Pirata+One&family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
+<title>RPG One Piece - Navegação</title>
 <style>
-:root{
-  --sea:#0b5ed7;
-  --sea-dark:#084298;
-  --sea-deep:#052c65;
-  --gold:#f5c542;
-  --accent:#90e0ef;
-  --card:#001d3d;
+body {
+  margin: 0;
+  font-family: 'Trebuchet MS', Arial, sans-serif;
+  background: linear-gradient(#0a4fa3, #021f3f);
+  color: #fff;
 }
-body{
-  margin:0;
-  font-family:Roboto, sans-serif;
-  color:#fff;
-  background:linear-gradient(180deg,var(--sea),var(--sea-dark),var(--sea-deep));
-  min-height:100vh;
+.container {
+  max-width: 900px;
+  margin: auto;
+  padding: 20px;
 }
-.container{max-width:1100px;margin:auto;padding:30px;text-align:center}
-h1{font-family:'Pirata One';font-size:3em;color:var(--gold)}
-.subtitle{opacity:.9;margin-bottom:25px}
-.mode-buttons button{
-  padding:16px 30px;
-  margin:10px;
-  font-size:1.05em;
-  border:none;
-  border-radius:30px;
-  cursor:pointer;
-  background:linear-gradient(135deg,var(--gold),#ffd166);
+h1 {
+  text-align: center;
 }
-.mode-buttons button.secondary{
-  background:linear-gradient(135deg,#ff6b6b,#c1121f);
-  color:#fff;
+button {
+  background: #f5c542;
+  border: none;
+  padding: 12px 20px;
+  margin: 10px 5px;
+  border-radius: 8px;
+  font-size: 16px;
+  cursor: pointer;
 }
-.card{background:rgba(0,29,61,.96);border-radius:20px;padding:25px;margin-top:25px;text-align:left}
-.card h2,.card h3{text-align:center;color:var(--gold)}
-.badges span{display:inline-block;background:#003566;padding:6px 14px;border-radius:20px;margin:4px;font-size:.85em}
-.description-box{margin:15px 0;padding:15px;background:#012a4a;border-radius:15px;line-height:1.6}
-.center{text-align:center}
-.action-btn{margin-top:20px;padding:14px 30px;border:none;border-radius:25px;background:linear-gradient(135deg,var(--accent),#48cae4);cursor:pointer}
-.timer{margin-top:18px;font-weight:bold;color:var(--accent)}
-.hidden{display:none}
+button:hover { background: #ffd966; }
+.card {
+  background: rgba(0,0,0,0.35);
+  padding: 15px;
+  border-radius: 10px;
+  margin-top: 15px;
+}
+.hidden { display: none; }
 </style>
 </head>
 <body>
 <div class="container">
-  <h1>⚓ Grand Line RPG ⚓</h1>
-  <div class="subtitle">Eventos e recompensas oficiais do mundo de One Piece</div>
+<h1>🌊 RPG One Piece – Navegação</h1>
 
-  <div class="mode-buttons">
-    <button id="btnGrand">🌊 Grand Line</button>
-    <button id="btnNew" class="secondary">🔥 Novo Mundo</button>
-  </div>
+<button id="grandLineBtn">Navegar pela Grand Line</button>
+<button id="newWorldBtn">Navegação do Novo Mundo</button>
 
-  <div id="eventCard" class="card hidden"></div>
-  <div id="rewardCard" class="card hidden"></div>
-  <div id="timer" class="timer"></div>
+<div id="evento" class="card hidden"></div>
+<button id="concluirBtn" class="hidden">Concluir Evento</button>
+<div id="recompensa" class="card hidden"></div>
 </div>
 
 <script>
-let cooldown=false;
-let currentMode=null;
-
-/* ================= EVENTOS ================= */
-const events={
-  grand:[
-    {name:"Navio da Marinha",rarity:"Comum",difficulty:"Fácil",description:"Um navio da Marinha patrulha a rota marítima, seus canhões apontados e soldados atentos.",enemies:"Fuzileiros navais e um Capitão",objective:"Escapar ou derrotar o capitão"},
-    {name:"Barco Pirata Hostil",rarity:"Comum",difficulty:"Fácil",description:"Uma bandeira pirata desconhecida surge no horizonte, buscando saques fáceis.",enemies:"Piratas iniciantes",objective:"Vencer o confronto"},
-    {name:"Rei do Mar",rarity:"Raro",difficulty:"Médio",description:"O mar se revolta quando uma criatura colossal emerge para atacar.",enemies:"Rei do Mar",objective:"Sobreviver ou derrotar"},
-    {name:"Navio Fantasma",rarity:"Raro",difficulty:"Médio",description:"Um navio antigo navega sem tripulação visível, envolto em névoa e silêncio.",enemies:"Espíritos amaldiçoados",objective:"Investigar ou fugir"}
+const frutas = {
+  comum: [
+    {
+      nome: 'Bara Bara no Mi',
+      modelo: 'Paramecia',
+      habilidades: 'Permite ao usuário separar o próprio corpo em partes independentes, tornando-o imune a ataques cortantes.'
+    },
+    {
+      nome: 'Sube Sube no Mi',
+      modelo: 'Paramecia',
+      habilidades: 'Deixa o corpo escorregadio, fazendo ataques físicos deslizar e aumentando mobilidade.'
+    }
   ],
-  newworld:[
-    {name:"Piratas Veteranos",rarity:"Raro",difficulty:"Difícil",description:"Piratas experientes liberam Haki do Armamento e do Observação.",enemies:"Usuários de Haki",objective:"Vencer ou recuar"},
-    {name:"Frota de Yonkou",rarity:"Lendário",difficulty:"Extremo",description:"Navios colossais marcam território sob a bandeira de um Imperador dos Mares.",enemies:"Comandantes e elites de Yonkou",objective:"Fugir com vida"}
+  rara: [
+    {
+      nome: 'Tori Tori no Mi, Modelo: Falcão',
+      modelo: 'Zoan',
+      habilidades: 'Permite se transformar em um falcão ou forma híbrida, concedendo voo e visão aguçada.'
+    },
+    {
+      nome: 'Ope Ope no Mi',
+      modelo: 'Paramecia',
+      habilidades: 'Cria uma área onde o usuário pode manipular tudo livremente, incluindo corpos e objetos.'
+    }
+  ],
+  lendaria: [
+    {
+      nome: 'Hito Hito no Mi, Modelo: Nika',
+      modelo: 'Zoan Mítica',
+      habilidades: 'Concede um corpo de borracha e liberdade total de combate, com poderes que desafiam a realidade.'
+    },
+    {
+      nome: 'Goro Goro no Mi',
+      modelo: 'Logia',
+      habilidades: 'Permite criar, controlar e se transformar em eletricidade.'
+    }
   ]
 };
 
-/* ================= RECOMPENSAS ================= */
-const rewards={
-  grand:[
-    {chance:30,generate:()=>({title:"200–400 Berries",details:["Dinheiro saqueado após o confronto."]})},
-    {chance:25,generate:()=>({title:"Sandai Kitetsu",details:["Uma das espadas amaldiçoadas Kitetsu.","Usada por Roronoa Zoro durante parte de sua jornada."]})},
-    {chance:20,generate:()=>({title:"Mapa da Grand Line",details:["Mostra rotas perigosas e ilhas instáveis."]})},
-    {chance:15,generate:()=>({title:"Fruta do Diabo – Paramecia",details:["Concede uma habilidade especial única ao usuário."]})},
-    {chance:10,generate:()=>({title:"Dial de Impacto",details:["Tecnologia de Skypiea capaz de armazenar energia cinética."]})}
+const recompensas = {
+  grandline: [
+    { tipo: 'Espada', nome: 'Sandai Kitetsu', desc: 'Uma Meito amaldiçoada de alto poder ofensivo.' },
+    { tipo: 'Fruta', raridade: 'comum' },
+    { tipo: 'Baú', desc: 'Baú com 5.000 a 15.000 Berries em ouro.' }
   ],
-  newworld:[
-    {chance:25,generate:()=>({title:"5.000–8.000 Berries",details:["Tesouro extraído de territórios de Yonkou."]})},
-    {chance:20,generate:()=>({title:"Gryphon",details:["Espada lendária empunhada por Shanks, o Ruivo.","Transborda Haki de um Imperador."]})},
-    {chance:20,generate:()=>({title:"Meito Suprema",details:["Lâmina de altíssimo grau, rival das maiores espadas do mundo."]})},
-    {chance:20,generate:()=>({title:"Fruta do Diabo – Zoan Mítica",details:["Permite a transformação em uma criatura lendária.","Poder comparável aos maiores piratas do mundo."]})},
-    {chance:15,generate:()=>({title:"Poneglyph Fragmentado",details:["Parte de uma inscrição antiga do Século Perdido.","Extremamente cobiçado pelo Governo Mundial."]})}
+  newworld: [
+    { tipo: 'Espada', nome: 'Gryphon', desc: 'A lendária espada de Shanks, irradiando Haki.' },
+    { tipo: 'Fruta', raridade: 'lendaria' },
+    { tipo: 'Relíquia', desc: 'Fragmento de Poneglyph com segredos do Século Perdido.' }
   ]
 };
 
-function drawReward(mode){
-  const pool=[];
-  rewards[mode].forEach(r=>{for(let i=0;i<r.chance;i++) pool.push(r)});
-  return pool[Math.floor(Math.random()*pool.length)].generate();
+function sortear(arr) {
+  return arr[Math.floor(Math.random() * arr.length)];
 }
 
-function generateEvent(mode){
-  if(cooldown) return;
-  currentMode=mode;
-  const event=events[mode][Math.floor(Math.random()*events[mode].length)];
-  document.getElementById('rewardCard').classList.add('hidden');
-  const card=document.getElementById('eventCard');
-  card.classList.remove('hidden');
-  card.innerHTML=`
-    <h2>${event.name}</h2>
-    <div class="badges"><span>Raridade: ${event.rarity}</span><span>Dificuldade: ${event.difficulty}</span></div>
-    <div class="description-box">${event.description}</div>
-    <p><b>Inimigos:</b> ${event.enemies}</p>
-    <p><b>Objetivo:</b> ${event.objective}</p>
-    <div class="center"><button class="action-btn" id="btnConclude">Concluir Evento</button></div>
-  `;
-  document.getElementById('btnConclude').onclick=concludeEvent;
-  startCooldown();
+let modoAtual = '';
+
+function gerarEvento(modo) {
+  modoAtual = modo;
+  document.getElementById('evento').innerHTML = `<h3>⚔️ Evento Gerado</h3><p>Você encontrou uma ameaça marítima perigosa durante sua navegação.</p>`;
+  document.getElementById('evento').classList.remove('hidden');
+  document.getElementById('concluirBtn').classList.remove('hidden');
+  document.getElementById('recompensa').classList.add('hidden');
 }
 
-function concludeEvent(){
-  const reward=drawReward(currentMode);
-  const card=document.getElementById('rewardCard');
-  card.classList.remove('hidden');
-  card.innerHTML=`<h3>🎁 Recompensa Obtida</h3><p><b>${reward.title}</b></p><ul>${reward.details.map(d=>`<li>${d}</li>`).join('')}</ul>`;
+function concluirEvento() {
+  const recompensa = sortear(recompensas[modoAtual]);
+  let texto = '<h3>🎁 Recompensa Obtida</h3>';
+
+  if (recompensa.tipo === 'Fruta') {
+    const fruta = sortear(frutas[recompensa.raridade]);
+    texto += `<p><strong>Fruta do Diabo:</strong> ${fruta.nome}</p>`;
+    texto += `<p><strong>Modelo:</strong> ${fruta.modelo}</p>`;
+    texto += `<p><strong>Habilidades:</strong> ${fruta.habilidades}</p>`;
+  } else {
+    texto += `<p><strong>${recompensa.nome || recompensa.tipo}</strong></p><p>${recompensa.desc}</p>`;
+  }
+
+  document.getElementById('recompensa').innerHTML = texto;
+  document.getElementById('recompensa').classList.remove('hidden');
 }
 
-function startCooldown(){
-  cooldown=true;
-  let time=Math.floor(Math.random()*600)+300;
-  const timer=document.getElementById('timer');
-  const interval=setInterval(()=>{
-    timer.innerText=`⏳ Próximo evento em ${time}s`;
-    time--;
-    if(time<=0){clearInterval(interval);cooldown=false;timer.innerText="⚓ Você pode navegar novamente";}
-  },1000);
-}
-
-window.onload=()=>{
-  document.getElementById('btnGrand').onclick=()=>generateEvent('grand');
-  document.getElementById('btnNew').onclick=()=>generateEvent('newworld');
+window.onload = () => {
+  document.getElementById('grandLineBtn').onclick = () => gerarEvento('grandline');
+  document.getElementById('newWorldBtn').onclick = () => gerarEvento('newworld');
+  document.getElementById('concluirBtn').onclick = concluirEvento;
 };
 </script>
 </body>
