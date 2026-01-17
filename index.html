@@ -7,21 +7,19 @@
 <link href="https://fonts.googleapis.com/css2?family=Pirata+One&family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
 <style>
 :root{
-  --gold:#f5c542;
+  --sea-light:#1e6091;
   --sea:#0a2540;
-  --deep:#000814;
-  --card:#001d3d;
+  --sea-deep:#000814;
+  --gold:#f5c542;
   --accent:#90e0ef;
+  --card:#001d3d;
 }
 body{
   margin:0;
   font-family:Roboto, sans-serif;
   color:#fff;
-  background:
-    linear-gradient(rgba(0,0,0,.7),rgba(0,0,0,.7)),
-    url('https://i.imgur.com/3ZQ3Z8F.jpg');
-  background-size:cover;
-  background-attachment:fixed;
+  background:linear-gradient(180deg,var(--sea-light),var(--sea),var(--sea-deep));
+  min-height:100vh;
   text-align:center;
 }
 .container{max-width:1100px;margin:auto;padding:30px}
@@ -43,9 +41,9 @@ h1{font-family:'Pirata One';font-size:3.2em;color:var(--gold);text-shadow:2px 2p
 }
 .mode-buttons button:disabled{opacity:.4;cursor:not-allowed}
 .card{
-  background:rgba(0,29,61,.92);
+  background:rgba(0,29,61,.95);
   border-radius:22px;
-  padding:25px;
+  padding:28px;
   margin-top:25px;
   box-shadow:0 0 25px rgba(0,0,0,.8);
   text-align:left;
@@ -57,14 +55,7 @@ h1{font-family:'Pirata One';font-size:3.2em;color:var(--gold);text-shadow:2px 2p
   padding:6px 14px;
   border-radius:20px;
   margin:4px;
-  font-size:.85em;
-}
-img.event-img{
-  width:100%;
-  max-height:320px;
-  object-fit:cover;
-  border-radius:18px;
-  margin-top:15px;
+  font-size:.85em
 }
 .center{text-align:center}
 .action-btn{
@@ -74,10 +65,17 @@ img.event-img{
   border-radius:25px;
   background:linear-gradient(135deg,var(--accent),#48cae4);
   font-size:1em;
-  cursor:pointer;
+  cursor:pointer
 }
 .timer{margin-top:18px;font-weight:bold;color:var(--accent)}
 .hidden{display:none}
+.description-box{
+  margin-top:15px;
+  padding:15px;
+  background:#012a4a;
+  border-radius:15px;
+  line-height:1.6
+}
 </style>
 </head>
 <body>
@@ -105,28 +103,25 @@ const events={
       name:"Navio da Marinha",
       rarity:"Comum",
       difficulty:"Fácil",
-      description:"Um navio da Marinha surge no horizonte, patrulhando as águas da Grand Line.",
-      enemies:"Fuzileiros navais liderados por um Capitão",
-      objective:"Escapar sem ser detectado ou derrotar o capitão",
-      image:"https://i.imgur.com/1ZQZ1Zm.jpg"
+      description:"No horizonte, velas brancas surgem contra o céu. Um navio da Marinha corta as ondas com disciplina rígida. Os fuzileiros observam atentamente, prontos para agir caso identifiquem qualquer bandeira pirata. O clima é tenso, mas ainda controlável.",
+      enemies:"Fuzileiros navais e um Capitão da Marinha",
+      objective:"Passar despercebido ou derrotar o capitão para continuar a rota"
     },
     {
       name:"Rei do Mar",
       rarity:"Raro",
       difficulty:"Médio",
-      description:"As águas se agitam violentamente quando uma criatura colossal emerge.",
-      enemies:"Um Rei do Mar faminto",
-      objective:"Sobreviver ao ataque ou caçar a criatura",
-      image:""
+      description:"As águas começam a borbulhar e o mar se agita violentamente. Uma sombra gigantesca se move sob o navio antes de emergir em um rugido ensurdecedor. O Rei do Mar ataca sem piedade, testando a coragem e a força da tripulação.",
+      enemies:"Um Rei do Mar colossal",
+      objective:"Sobreviver ao ataque ou derrotar a criatura"
     },
     {
       name:"Thriller Bark",
       rarity:"Lendário",
       difficulty:"Difícil",
-      description:"Uma neblina densa envolve um gigantesco navio fantasma.",
+      description:"Uma névoa espessa cobre o mar, abafando sons e sentidos. De repente, um gigantesco navio fantasma surge silenciosamente. Risadas distantes ecoam enquanto zumbis se movimentam nas sombras. Algo terrível observa cada passo da tripulação.",
       enemies:"Zumbis e o Shichibukai Gecko Moria",
-      objective:"Escapar do navio amaldiçoado",
-      image:"https://i.imgur.com/4rX2P.jpg"
+      objective:"Escapar do navio amaldiçoado com vida"
     }
   ],
   newworld:[
@@ -134,27 +129,25 @@ const events={
       name:"Piratas do Novo Mundo",
       rarity:"Raro",
       difficulty:"Difícil",
-      description:"Uma tripulação experiente do Novo Mundo bloqueia seu caminho.",
-      enemies:"Piratas veteranos com Haki",
-      objective:"Derrotar a tripulação inimiga",
-      image:""
+      description:"O mar parece mais pesado, quase hostil. Um navio imponente se aproxima, carregando uma tripulação experiente marcada por batalhas. A pressão do Haki é palpável, deixando claro que estes piratas não são adversários comuns.",
+      enemies:"Piratas veteranos usuários de Haki",
+      objective:"Vencer o confronto ou forçar uma retirada estratégica"
     },
     {
       name:"Território de Yonkou",
       rarity:"Lendário",
       difficulty:"Extremo",
-      description:"Você entrou em águas dominadas por um Imperador dos Mares.",
-      enemies:"Comandantes de elite de um Yonkou",
-      objective:"Fugir com vida dessas águas",
-      image:"https://i.imgur.com/8X1pA.jpg"
+      description:"O vento muda repentinamente e o céu escurece. Todos a bordo sentem um peso esmagador no ar. Estas águas pertencem a um Yonkou, e qualquer erro pode significar aniquilação. Cada decisão aqui define o destino da tripulação.",
+      enemies:"Comandantes de elite de um Imperador dos Mares",
+      objective:"Escapar dessas águas sem ser destruído"
     }
   ]
 };
 
 const rewards=[
-  {name:"Espada Comum",rarity:"Comum",description:"Uma lâmina simples, mas confiável." ,chance:40},
-  {name:"Baú Raro",rarity:"Raro",description:"Contém ouro, mapas e equipamentos." ,chance:25},
-  {name:"Fruta do Diabo – Logia",rarity:"Lendária",description:"Concede controle total sobre um elemento natural." ,chance:5}
+  {name:"Espada Comum",rarity:"Comum",description:"Uma lâmina simples, forjada para marinheiros e piratas iniciantes.",chance:40},
+  {name:"Baú Raro",rarity:"Raro",description:"Um baú reforçado contendo ouro, mapas antigos e itens valiosos.",chance:25},
+  {name:"Fruta do Diabo – Logia",rarity:"Lendária",description:"Uma fruta extremamente rara que concede o poder de se transformar e controlar um elemento natural.",chance:5}
 ];
 
 function weightedReward(){
@@ -169,10 +162,6 @@ function generateEvent(mode){
   const event=events[mode][Math.floor(Math.random()*events[mode].length)];
   pendingReward=weightedReward();
 
-  const imgBlock=event.image
-    ? `<img class="event-img" src="${event.image}">`
-    : `<p><i>Descrição do inimigo:</i> ${event.enemies}</p>`;
-
   document.getElementById('eventCard').classList.remove('hidden');
   document.getElementById('rewardCard').classList.add('hidden');
 
@@ -182,10 +171,9 @@ function generateEvent(mode){
       <span>Raridade: ${event.rarity}</span>
       <span>Dificuldade: ${event.difficulty}</span>
     </div>
-    <p>${event.description}</p>
+    <div class="description-box">${event.description}</div>
     <p><b>Inimigos:</b> ${event.enemies}</p>
     <p><b>Objetivo:</b> ${event.objective}</p>
-    ${imgBlock}
     <div class="center">
       <button class="action-btn" onclick="concludeEvent()">Concluir Evento</button>
     </div>
