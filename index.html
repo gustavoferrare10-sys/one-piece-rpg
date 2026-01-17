@@ -106,24 +106,55 @@ const recompensas = {
   grand: [
     { tipo: 'Tecnica', nome: 'Soru', desc: 'Movimento instantâneo de alta velocidade.' },
     { tipo: 'Tecnica', nome: 'Tekkai', desc: 'Endurecimento do corpo como aço.' },
+    { tipo: 'Tecnica', nome: 'Rankyaku', desc: 'Cortes de ar comprimido com as pernas.' },
+    { tipo: 'Tecnica', nome: 'Shigan', desc: 'Ataque perfurante com os dedos.' },
+
     { tipo: 'Item', nome: 'Gas Dial', desc: 'Dial que libera gás comprimido.' },
     { tipo: 'Item', nome: 'Jet Dial', desc: 'Dial que gera impulso extremo.' },
+    { tipo: 'Item', nome: 'Cola do Franky', desc: 'Combustível energético usado em tecnologias.' },
+
+    { tipo: 'Consumivel', nome: 'Carne Especial', efeito: () => `Força +${randInt(5,10)}` },
+    { tipo: 'Consumivel', nome: 'Rum Pirata', efeito: () => `Resistência +${randInt(5,10)}` },
+    { tipo: 'Consumivel', nome: 'Fruta Energética', efeito: () => `Velocidade +${randInt(5,10)}` },
+
     { tipo: 'Equipamento', nome: 'Armadura de Wapolmetal', desc: 'Metal especial altamente resistente.' },
+    { tipo: 'Equipamento', nome: 'Capa da Marinha', desc: 'Reduz dano recebido em combates.' },
+
+    { tipo: 'Cosmetico', nome: 'Chapéu Estilo Pirata', efeito: () => `Carisma +${randInt(5,10)}` },
+
     { tipo: 'Akuma', grupo: 'paramecia' },
+
     { tipo: 'Navegacao', nome: 'Navio Revestido', desc: 'Permite navegação submarina.' },
+    { tipo: 'Navegacao', nome: 'Mapa da Grand Line', desc: 'Revela ilhas raras e rotas perigosas.' },
+
     { tipo: 'Ouro', desc: () => `Você obtém ${randInt(2000,8000)} Berries.` }
   ],
+
   newworld: [
     { tipo: 'Arma', nome: 'Nidai Kitetsu', desc: 'Espada O Wazamono amaldiçoada.' },
     { tipo: 'Arma', nome: 'Kikoku', desc: 'Espada amaldiçoada de Trafalgar Law.' },
     { tipo: 'Arma', nome: 'Napoleon', desc: 'Homie lendário de Big Mom.' },
+
     { tipo: 'Equipamento', nome: 'Armadura Samurai de Wano', desc: 'Compatível com Haki.' },
+    { tipo: 'Equipamento', nome: 'Armadura Germa 66', desc: 'Tecnologia militar avançada.' },
+
+    { tipo: 'Consumivel', nome: 'Carne de Rei dos Mares', efeito: () => `Força +${randInt(10,20)}` },
+    { tipo: 'Consumivel', nome: 'Sake de Wano', efeito: () => `Resistência +${randInt(10,20)}` },
+    { tipo: 'Consumivel', nome: 'Elixir do Novo Mundo', efeito: () => `Velocidade +${randInt(10,20)}` },
+
+    { tipo: 'Cosmetico', nome: 'Manto de Yonkou', efeito: () => `Presença +${randInt(10,20)}` },
+    { tipo: 'Cosmetico', nome: 'Cicatriz de Batalha', efeito: () => `Intimidação +${randInt(10,20)}` },
+
     { tipo: 'Akuma', grupo: 'especial' },
     { tipo: 'Akuma', grupo: 'zoan' },
     { tipo: 'Akuma', grupo: 'artificial' },
+
     { tipo: 'Haki', nome: 'Observação do Futuro', desc: 'Vislumbra acontecimentos futuros.' },
     { tipo: 'Habilidade', nome: 'Voz de Todas as Coisas', desc: 'Comunicação com entidades antigas.' },
+
     { tipo: 'Relic', nome: 'Road Poneglyph', desc: 'Fragmento essencial para Laugh Tale.' },
+    { tipo: 'Relic', nome: 'Informação da Arma Ancestral', desc: 'Conhecimento proibido e perigoso.' },
+
     { tipo: 'Ouro', desc: () => `Você obtém ${randInt(10000,40000)} Berries.` }
   ]
 };
