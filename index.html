@@ -3,223 +3,83 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>One Piece RPG – Grand Line</title>
-
+<title>Grand Line RPG – One Piece</title>
+<link href="https://fonts.googleapis.com/css2?family=Pirata+One&family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
 <style>
-:root{
-  --mar:#0b3c5d;
-  --ouro:#d4af37;
-  --perg:#f5deb3;
-  --escuro:#1a1a1a;
-}
-
 body{
-  margin:0;
-  font-family:'Trebuchet MS',serif;
-  background:linear-gradient(180deg,#001d3d,#003566,#0b3c5d);
-  min-height:100vh;
-  display:flex;
-  justify-content:center;
-  align-items:center;
+background:linear-gradient(#0a2540,#000814);
+color:#fff;font-family:Roboto, sans-serif;
+text-align:center;margin:0;padding:0
 }
-
-.container{
-  background:var(--perg);
-  width:94%;
-  max-width:520px;
-  border-radius:26px;
-  box-shadow:0 0 40px rgba(0,0,0,.7);
-  padding:22px;
-}
-
-header{
-  text-align:center;
-  margin-bottom:10px;
-}
-
-header h1{
-  margin:0;
-  color:#3c1e0a;
-}
-
-header small{
-  color:#5a3a1a;
-}
-
-button{
-  width:100%;
-  padding:16px;
-  margin-top:12px;
-  border:none;
-  border-radius:18px;
-  font-size:18px;
-  font-weight:bold;
-  cursor:pointer;
-}
-
-#btnExplorar{background:#b22222;color:white;}
-#btnConcluir{background:#8b4513;color:white;display:none;}
-
-.card{
-  background:#fff8dc;
-  border-radius:18px;
-  padding:16px;
-  margin-top:16px;
-  color:#2b1608;
-  min-height:220px;
-}
-
-.badge{
-  display:inline-block;
-  padding:6px 12px;
-  border-radius:14px;
-  margin:4px 4px 8px 0;
-  font-size:13px;
-  background:#e0c68d;
-}
-
-hr{border:none;border-top:1px dashed #a67c52;margin:12px 0;}
-
-.titulo{
-  font-weight:bold;
-  font-size:17px;
-}
-
-.recompensa{
-  background:#f0e2b6;
-  border-radius:14px;
-  padding:12px;
-  margin-top:10px;
-}
+.container{max-width:900px;margin:auto;padding:20px}
+h1{font-family:'Pirata One';font-size:3em;color:#f5c542}
+button{padding:15px 25px;margin:10px;font-size:1em;border:none;border-radius:10px;background:#f5c542;color:#000;cursor:pointer}
+button:disabled{opacity:.4;cursor:not-allowed}
+.card{background:#001d3d;border-radius:15px;padding:20px;margin-top:20px;box-shadow:0 0 20px #000}
+img{max-width:100%;border-radius:10px;margin-top:10px}
+.timer{margin-top:15px;color:#90e0ef}
 </style>
 </head>
 <body>
-
 <div class="container">
-<header>
-  <h1>⚓ Grand Line RPG ⚓</h1>
-  <small>Sistema de Eventos Marítimos – One Piece</small>
-</header>
-
-<button id="btnExplorar" onclick="gerarEvento()">🌊 Navegar pela Grand Line</button>
-<button id="btnConcluir" onclick="concluirEvento()">⚔️ Concluir Evento</button>
-
-<div class="card" id="resultado">
-  🏴‍☠️ Prepare sua tripulação e enfrente os mares!
+<h1>⚓ Grand Line RPG ⚓</h1>
+<p>Escolha seu tipo de navegação</p>
+<button onclick="startMode('grand')">Navegar pela Grand Line</button>
+<button onclick="startMode('newworld')">Navegação do Novo Mundo</button>
+<div id="event" class="card" style="display:none"></div>
+<div id="reward" class="card" style="display:none"></div>
+<div class="timer" id="timer"></div>
 </div>
-</div>
-
-<!-- Sons temáticos -->
-<audio id="somMar" src="https://cdn.pixabay.com/download/audio/2022/02/23/audio_6b2f1c06d6.mp3"></audio>
-<audio id="somTensao" src="https://cdn.pixabay.com/download/audio/2022/11/21/audio_6bb6c4b7ab.mp3"></audio>
-<audio id="somEpico" src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_3fda1f62c0.mp3"></audio>
 
 <script>
-let eventoAtual=null;
-let recompensaAtual=null;
+let cooldown=false;
 
-const eventos=[
- {nome:"Patrulha da Marinha",raridade:"Comum",dificuldade:"Baixa",descricao:"Navios da Marinha patrulham a rota.",som:"somMar"},
- {nome:"Bando Pirata Iniciante",raridade:"Comum",dificuldade:"Baixa",descricao:"Piratas buscando fama e saque.",som:"somMar"},
- {nome:"Navio Afundado",raridade:"Raro",dificuldade:"Média",descricao:"Destroços antigos escondem tesouros.",som:"somTensao"},
- {nome:"Rei do Mar",raridade:"Mítico",dificuldade:"Alta",descricao:"Uma criatura colossal emerge das profundezas.",som:"somTensao"},
- {nome:"Megalodon",raridade:"Mítico",dificuldade:"Alta",descricao:"Predador lendário do oceano.",som:"somTensao"},
- {nome:"Navio Fantasma",raridade:"Lendário",dificuldade:"Extrema",descricao:"Uma embarcação amaldiçoada vaga pelos mares.",som:"somEpico"},
- {nome:"Thriller Bark",raridade:"Lendário",dificuldade:"Extrema",descricao:"O navio-ilha do lendário Gecko Moria.",som:"somEpico"}
+const modes={
+ grand:[
+  {name:"Navio da Marinha",rarity:"Comum",difficulty:"Fácil",desc:"Um navio patrulha da Marinha cruza seu caminho.",enemies:"Fuzileiros navais",objective:"Escapar ou derrotar o capitão",img:"https://i.imgur.com/2s9Z1.jpg"},
+  {name:"Rei do Mar",rarity:"Raro",difficulty:"Médio",desc:"Uma criatura colossal emerge do oceano.",enemies:"Rei do Mar",objective:"Sobreviver ou caçar",img:"https://i.imgur.com/YkZyL.jpg"},
+  {name:"Thriller Bark",rarity:"Lendário",difficulty:"Difícil",desc:"O navio fantasma de Gecko Moria aparece.",enemies:"Zumbis e Moria",objective:"Sobreviver ao terror",img:"https://i.imgur.com/4rX2P.jpg"}
+ ],
+ newworld:[
+  {name:"Piratas do Novo Mundo",rarity:"Raro",difficulty:"Difícil",desc:"Piratas experientes surgem no horizonte.",enemies:"Tripulação veterana",objective:"Derrotar ou negociar",img:"https://i.imgur.com/6E8dA.jpg"},
+  {name:"Yonkou Territory",rarity:"Lendário",difficulty:"Extremo",desc:"Você entrou no território de um Yonkou.",enemies:"Comandantes de elite",objective:"Fugir vivo",img:"https://i.imgur.com/8X1pA.jpg"}
+ ]
+};
+
+const rewards=[
+ {name:"Espada Comum",desc:"Uma lâmina simples usada por marinheiros."},
+ {name:"Baú Raro",desc:"Contém ouro e itens valiosos."},
+ {name:"Fruta do Diabo – Logia",desc:"Poder lendário que controla a natureza."}
 ];
 
-const recompensas=[
- {nome:"Espada Comum",chance:25,itens:[
-   {item:"Katana simples",info:"Lâmina básica usada por piratas comuns."},
-   {item:"Sabre da Marinha",info:"Espada padrão dos soldados da Marinha."}
- ]},
- {nome:"Baú Comum",chance:20,itens:[
-   {item:"5.000 Berries",info:"Moeda padrão dos mares."},
-   {item:"Mapa Simples",info:"Mapa incompleto de rotas marítimas."}
- ]},
- {nome:"Fruta do Diabo Comum",chance:10,itens:[
-   {item:"Kilo Kilo no Mi",info:"Paramecia – controla o peso do corpo. Usuária: Miss Valentine."},
-   {item:"Beri Beri no Mi",info:"Paramecia – corpo se divide em esferas. Usuário: Very Good."}
- ]},
+function startMode(mode){
+ if(cooldown)return;
+ const event=modes[mode][Math.floor(Math.random()*modes[mode].length)];
+ const reward=rewards[Math.floor(Math.random()*rewards.length)];
+ document.getElementById('event').style.display='block';
+ document.getElementById('event').innerHTML=`<h2>${event.name}</h2>
+ <p><b>Raridade:</b> ${event.rarity}</p>
+ <p><b>Dificuldade:</b> ${event.difficulty}</p>
+ <p>${event.desc}</p>
+ <p><b>Inimigos:</b> ${event.enemies}</p>
+ <p><b>Objetivo:</b> ${event.objective}</p>
+ <img src="${event.img}">`;
 
- {nome:"Espada Rara",chance:12,itens:[
-   {item:"Yubashiri",info:"Meito amaldiçoada. Usuário: Roronoa Zoro (antiga)."},
-   {item:"Shigure",info:"Espada famosa de Wano. Usuário: Tashigi."}
- ]},
- {nome:"Baú Raro",chance:10,itens:[
-   {item:"20.000 Berries",info:"Recompensa significativa."},
-   {item:"Dial de Impacto",info:"Tecnologia de Skypiea que armazena energia."}
- ]},
- {nome:"Fruta do Diabo Rara",chance:8,itens:[
-   {item:"Mero Mero no Mi",info:"Paramecia – petrificação por paixão. Usuária: Boa Hancock."},
-   {item:"Tori Tori no Mi – Falcão",info:"Zoan – transformação aérea. Usuário: Pell."}
- ]},
-
- {nome:"Espada Mítica",chance:5,itens:[
-   {item:"Sandai Kitetsu",info:"Meito amaldiçoada sedenta por sangue."},
-   {item:"Shusui (danificada)",info:"Espada negra lendária de Ryuma."}
- ]},
- {nome:"Baú Mítico",chance:4,itens:[
-   {item:"100.000 Berries",info:"Tesouro raro."},
-   {item:"Vivre Card",info:"Aponta para a pessoa ligada a ele."}
- ]},
- {nome:"Fruta do Diabo Mítica",chance:3,itens:[
-   {item:"Ope Ope no Mi",info:"Paramecia Suprema – cirurgia absoluta. Usuário: Trafalgar Law."},
-   {item:"Ito Ito no Mi",info:"Paramecia – controle de fios. Usuário: Doflamingo."}
- ]},
-
- {nome:"Espada Lendária",chance:1.5,itens:[
-   {item:"Enma",info:"Espada que drena Haki. Usuário: Roronoa Zoro."}
- ]},
- {nome:"Baú Lendário",chance:1,itens:[
-   {item:"1.000.000 Berries",info:"Fortuna digna de um imperador."},
-   {item:"Mapa do Road Poneglyph",info:"Pista para Laugh Tale."}
- ]},
- {nome:"Fruta do Diabo Lendária",chance:0.5,itens:[
-   {item:"Gura Gura no Mi",info:"Paramecia – destruição sísmica. Usuário: Edward Newgate."},
-   {item:"Magu Magu no Mi",info:"Logia – magma absoluto. Usuário: Akainu."},
-   {item:"Uo Uo no Mi – Seiryu",info:"Zoan Mítica – dragão. Usuário: Kaido."}
- ]}
-];
-
-function gerarRecompensa(){
- const total=recompensas.reduce((s,r)=>s+r.chance,0);
- let roll=Math.random()*total;
- for(let r of recompensas){
-   if(roll<r.chance){
-     const it=r.itens[Math.floor(Math.random()*r.itens.length)];
-     return {categoria:r.nome,item:it.item,info:it.info};
-   }
-   roll-=r.chance;
- }
+ document.getElementById('reward').style.display='block';
+ document.getElementById('reward').innerHTML=`<h3>Recompensa</h3><p>${reward.name}</p><p>${reward.desc}</p>`;
+ startCooldown();
 }
 
-function gerarEvento(){
- eventoAtual=eventos[Math.floor(Math.random()*eventos.length)];
- recompensaAtual=gerarRecompensa();
- document.getElementById("resultado").innerHTML=`
-   <div class='titulo'>🌊 ${eventoAtual.nome}</div>
-   <span class='badge'>Raridade: ${eventoAtual.raridade}</span>
-   <span class='badge'>Dificuldade: ${eventoAtual.dificuldade}</span>
-   <p>${eventoAtual.descricao}</p>
-   <hr>
-   🎁 Recompensa oculta até a conclusão
- `;
- document.getElementById(eventoAtual.som).play();
- document.getElementById("btnConcluir").style.display="block";
-}
-
-function concluirEvento(){
- document.getElementById("resultado").innerHTML+=`
-   <div class='recompensa'>
-     <b>🎁 ${recompensaAtual.categoria}</b><br>
-     <i>${recompensaAtual.item}</i><br>
-     <small>${recompensaAtual.info}</small>
-   </div>
- `;
- document.getElementById("btnConcluir").style.display="none";
+function startCooldown(){
+ cooldown=true;
+ let time=Math.floor(Math.random()*600)+300;
+ const timer=document.getElementById('timer');
+ const interval=setInterval(()=>{
+  timer.innerText=`Aguarde ${time}s para novo evento`;
+  time--;
+  if(time<=0){clearInterval(interval);cooldown=false;timer.innerText="Você pode navegar novamente!"}
+ },1000);
 }
 </script>
-
 </body>
 </html>
