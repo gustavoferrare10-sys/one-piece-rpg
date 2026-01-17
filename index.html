@@ -3,273 +3,202 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>One Piece RPG – Navegação</title>
+<title>Navegação Pirata</title>
+
 <style>
 :root{
-  --ocean:#0a2540;
-  --sea:#0d3b66;
-  --gold:#f4c430;
-  --track:#021526;
+  --mar:#0a4fa3;
+  --mar-escuro:#063b7a;
+  --dourado:#f5c542;
+  --branco:#ffffff;
 }
-*{box-sizing:border-box}
+
+*{
+  box-sizing:border-box;
+  font-family:Arial, Helvetica, sans-serif;
+}
+
 body{
   margin:0;
-  font-family:Arial, Helvetica, sans-serif;
-  background:linear-gradient(180deg,var(--ocean),var(--sea));
-  color:#fff;
-  min-height:100vh;
-  display:flex;
-  justify-content:center;
-  padding:12px;
+  background:linear-gradient(to bottom, var(--mar), var(--mar-escuro));
+  color:var(--branco);
 }
-.app{
-  width:100%;
-  max-width:800px;
-  background:rgba(0,0,0,0.45);
-  border:2px solid var(--gold);
-  border-radius:16px;
-  padding:14px;
-}
-h1{
+
+header{
   text-align:center;
-  color:var(--gold);
-  margin-top:5px;
-  font-size:clamp(1.3rem,4vw,2rem);
+  padding:20px;
+  background:#042e63;
+  font-size:22px;
+  font-weight:bold;
 }
-.buttons{
-  display:flex;
-  flex-direction:column;
-  gap:10px;
-  margin:10px 0;
+
+main{
+  padding:15px;
+  max-width:800px;
+  margin:auto;
 }
-@media(min-width:600px){
-  .buttons{flex-direction:row; justify-content:center;}
-}
+
 button{
   width:100%;
   padding:14px;
+  margin:8px 0;
+  font-size:16px;
   border:none;
-  border-radius:12px;
-  font-size:1rem;
+  border-radius:8px;
+  background:var(--dourado);
+  color:#000;
   font-weight:bold;
-  background:linear-gradient(145deg,#f4c430,#c99b2b);
   cursor:pointer;
 }
-button:active{transform:scale(.97)}
-.card{
-  background:rgba(0,0,0,.55);
-  border-left:5px solid var(--gold);
-  border-radius:12px;
-  padding:12px;
-  margin-top:12px;
-}
-.hidden{display:none}
 
-/* PROGRESS BAR */
-.progress-container{
-  margin-top:15px;
+button:disabled{
+  background:#888;
+  cursor:not-allowed;
 }
-.progress-label{
+
+.card{
+  background:rgba(0,0,0,0.3);
+  padding:15px;
+  border-radius:10px;
+  margin-top:10px;
+}
+
+.hidden{
+  display:none;
+}
+
+.badge{
+  padding:4px 8px;
+  border-radius:6px;
+  font-size:12px;
   font-weight:bold;
-  margin-bottom:6px;
+  display:inline-block;
+  margin-bottom:5px;
 }
-.progress-track{
-  position:relative;
-  width:100%;
-  height:26px;
-  background:var(--track);
-  border-radius:20px;
+
+.raro{background:#2ecc71;}
+.epico{background:#9b59b6;}
+.lendario{background:#f1c40f;color:#000;}
+.mitico{background:#e74c3c;}
+
+.progress{
+  background:#003366;
+  border-radius:10px;
   overflow:hidden;
+  margin:15px 0;
 }
-.progress-fill{
-  height:100%;
+
+.progress-bar{
+  height:20px;
   width:0%;
-  background:linear-gradient(90deg,#1e90ff,#00bfff);
-  transition:width .4s ease;
-}
-.luffy{
-  position:absolute;
-  top:-10px;
-  font-size:28px;
-  left:0;
-  transition:left .4s ease;
-}
-.bonus-text{
-  margin-top:6px;
-  font-size:.9rem;
+  background:#ff0000;
+  transition:width 0.4s;
 }
 </style>
 </head>
+
 <body>
-<div class="app">
-  <h1>🏴‍☠️ Jornada pelos Mares</h1>
 
-  <div class="buttons">
-    <button onclick="start('grand')">🌊 Navegar pela Grand Line</button>
-    <button onclick="start('new')">🔥 Navegar pelo Novo Mundo</button>
-    <button id="finishBtn" class="hidden" onclick="finishEvent()">⚔️ Concluir Evento</button>
-  </div>
+<header>🏴‍☠️ Navegação Pirata — One Piece</header>
 
-  <div class="progress-container">
-    <div class="progress-label">Progresso de Exploração</div>
-    <div class="progress-track">
-      <div id="progressFill" class="progress-fill"></div>
-      <div id="luffy" class="luffy">🏃‍♂️</div>
-    </div>
-    <div id="bonusInfo" class="bonus-text">Chance bônus: x1</div>
-  </div>
+<main>
 
-  <div id="event" class="card hidden"></div>
-  <div id="reward" class="card hidden"></div>
+<button onclick="iniciarModo('grand')">🌊 Navegar pela Grand Line</button>
+<button onclick="iniciarModo('novo')">🔥 Navegação do Novo Mundo</button>
+
+<div class="progress">
+  <div class="progress-bar" id="barra"></div>
 </div>
 
+<div id="evento" class="card hidden"></div>
+<button id="concluir" class="hidden" onclick="concluirEvento()">⚔️ Concluir Evento</button>
+<div id="recompensa" class="card hidden"></div>
+
+</main>
+
 <script>
-let eventsCompleted = 0;
-let bonusMultiplier = 1;
-let currentMode = null;
+let modoAtual = null;
+let eventosConcluidos = 0;
+let eventoGerado = null;
+let proximoTempo = 0;
 
-const rarityTable = {
+const eventos = {
   grand:[
-    {r:'Comum',c:60},
-    {r:'Incomum',c:25},
-    {r:'Raro',c:10},
-    {r:'Épico',c:4},
-    {r:'Lendário',c:0.8},
-    {r:'Mítico',c:0.2}
+    {desc:"Um navio da Marinha patrulha a região.", inimigo:"Capitão da Marinha", dificuldade:"Média"},
+    {desc:"Piratas rivais atacam durante a neblina.", inimigo:"Piratas da Grand Line", dificuldade:"Baixa"},
+    {desc:"Uma criatura marinha colossal surge.", inimigo:"Rei dos Mares", dificuldade:"Alta"}
   ],
-  new:[
-    {r:'Incomum',c:35},
-    {r:'Raro',c:25},
-    {r:'Épico',c:20},
-    {r:'Lendário',c:15},
-    {r:'Mítico',c:5}
+  novo:[
+    {desc:"Um comandante de Yonko bloqueia o caminho.", inimigo:"Comandante do Novo Mundo", dificuldade:"Extrema"},
+    {desc:"Uma ilha dominada por SMILEs defeituosas.", inimigo:"Piratas de Kaido", dificuldade:"Alta"},
+    {desc:"Território proibido da Marinha.", inimigo:"Almirante", dificuldade:"Letal"}
   ]
 };
 
-const events = {
+const recompensas = {
   grand:[
-    {n:'Rei do Mar',d:'Alta',t:'Uma criatura colossal emerge das profundezas.'},
-    {n:'Navio da Marinha',d:'Média',t:'Canhões apontados, batalha iminente.'},
-    {n:'Ilha Misteriosa',d:'Baixa',t:'Tesouros e armadilhas escondidas.'}
+    {nome:"Katana Comum", tipo:"Espada", raridade:"raro", bonus:"Força +7"},
+    {nome:"Mapa da Grand Line", tipo:"Mapa", raridade:"epico", bonus:"Revela rotas raras"},
+    {nome:"Kilo Kilo no Mi", tipo:"Akuma no Mi", raridade:"lendario", bonus:"Manipula peso"}
   ],
-  new:[
-    {n:'Tripulação Yonko',d:'Extrema',t:'Haki esmagador domina o campo.'},
-    {n:'Wano em Guerra',d:'Extrema',t:'Samurais e piratas colidem violentamente.'}
+  novo:[
+    {nome:"Nidai Kitetsu", tipo:"Espada", raridade:"epico", bonus:"Força +15"},
+    {nome:"Mochi Mochi no Mi", tipo:"Akuma no Mi", raridade:"lendario", bonus:"Corpo de mochi + visão futura"},
+    {nome:"Hito Hito no Mi: Nika", tipo:"Akuma no Mi", raridade:"mitico", bonus:"Liberdade absoluta"}
   ]
 };
 
-const rewards = {
-  grand:{
-    Comum:[
-      {n:'150~300 Berries',d:'Dinheiro saqueado.'},
-      {n:'300~600 Berries',d:'Lucro de comércio marítimo.'},
-      {n:'Chapéu de Palha Simples',d:'Cosmético – Moral +5'},
-      {n:'Capa de Marinheiro',d:'Cosmético – Resistência +5'}
-    ],
-    Incomum:[
-      {n:'800~1200 Berries',d:'Tesouro encontrado em destroços.'},
-      {n:'Pulseira do East Blue',d:'Cosmético – Velocidade +7'},
-      {n:'Ton Ton no Mi',d:'Paramecia – aumento de peso corporal'},
-      {n:'Baku Baku no Mi',d:'Paramecia – comer e fundir objetos'}
-    ],
-    Raro:[
-      {n:'Sandai Kitetsu',d:'Espada amaldiçoada – ATQ +8'},
-      {n:'Yubashiri',d:'Espada refinada – ATQ +7'},
-      {n:'Cosmético: Bandana Pirata',d:'Força +8'},
-      {n:'Mero Mero no Mi',d:'Paramecia – petrificação por afeição'}
-    ],
-    Épico:[
-      {n:'Shusui (RéplicA)',d:'Espada negra – ATQ +12'},
-      {n:'Armadura Wapolmetal',d:'Defesa +12'},
-      {n:'Haki Básico',d:'Habilidade – percepção aprimorada'}
-    ],
-    Lendário:[
-      {n:'Mera Mera no Mi',d:'Logia – controle absoluto do fogo'},
-      {n:'Cosmético: Casaco de Capitão',d:'Autoridade +15'},
-      {n:'Enma (Desgastada)',d:'Espada exigente – ATQ +15'}
-    ],
-    Mítico:[
-      {n:'Goro Goro no Mi',d:'Logia – relâmpago divino'},
-      {n:'Mapa Perdido da Grand Line',d:'Revela rotas secretas e bônus futuros'}
-    ]
-  },
-  new:{
-    Incomum:[
-      {n:'2000~3500 Berries',d:'Espólio de guerra do Novo Mundo'},
-      {n:'Cosmético: Cinto de Combate',d:'Força +10'},
-      {n:'SMILE Artificial',d:'Akuma Artificial – efeito imprevisível'},
-      {n:'Fruta SMILE Defeituosa',d:'Akuma Artificial – efeito colateral permanente'}
-    ],
-    Raro:[
-      {n:'Raid Suit (Protótipo)',d:'Tecnologia Germa – Velocidade +12'},
-      {n:'Cosmético: Máscara de Wano',d:'Resistência +12'},
-      {n:'Ito Ito no Mi',d:'Paramecia – fios cortantes'},
-      {n:'Jiki Jiki no Mi',d:'Paramecia – magnetismo metálico'},
-      {n:'Bisu Bisu no Mi',d:'Paramecia – criação de biscoitos'}
-    ],
-    Épico:[
-      {n:'Kikoku',d:'Espada amaldiçoada – ATQ +15'},
-      {n:'Busoshoku Haki',d:'Habilidade – ataques fortalecidos'},
-      {n:'Mochi Mochi no Mi',d:'Paramecia Especial – corpo de mochi'},
-      {n:'Soru Soru no Mi',d:'Paramecia – manipulação de almas'},
-      {n:'Pika Pika no Mi',d:'Logia – velocidade da luz'}
-    ],
-    Lendário:[
-      {n:'Ope Ope no Mi',d:'Paramecia suprema – cirurgia absoluta'},
-      {n:'Cosmético: Manto de Yonko',d:'Presença +18'},
-      {n:'Murakumogiri (Fragmento)',d:'Arma lendária – ATQ +18'},
-      {n:'Magu Magu no Mi',d:'Logia – magma absoluto'},
-      {n:'Yami Yami no Mi',d:'Logia especial – escuridão e gravidade'}
-    ],
-    Mítico:[
-      {n:'Tori Tori no Mi – Fênix',d:'Zoan Mítica – regeneração total'},
-      {n:'Haki do Rei',d:'Habilidade rara – intimidação suprema'},
-      {n:'Road Poneglyph (Cópia)',d:'Relíquia – conhecimento proibido'},
-      {n:'Uo Uo no Mi – Seiryu',d:'Zoan Mítica – dragão azul'},
-      {n:'Hito Hito no Mi – Modelo Nika',d:'Zoan Mítica – liberdade absoluta'}
-    ]
+function iniciarModo(modo){
+  const agora = Date.now();
+  if(agora < proximoTempo){
+    const min = Math.ceil((proximoTempo-agora)/60000);
+    alert("Aguarde "+min+" minutos para o próximo evento.");
+    return;
   }
-};
 
-function rollRarity(mode){
-  let roll = Math.random()*100;
-  let sum = 0;
-  for(const e of rarityTable[mode]){
-    sum += e.c * bonusMultiplier;
-    if(roll <= sum) return e.r;
-  }
-  return rarityTable[mode][0].r;
+  modoAtual = modo;
+  const lista = eventos[modo];
+  eventoGerado = lista[Math.floor(Math.random()*lista.length)];
+
+  document.getElementById("evento").innerHTML = `
+    <h3>📜 Evento</h3>
+    <p><b>Descrição:</b> ${eventoGerado.desc}</p>
+    <p><b>Inimigo:</b> ${eventoGerado.inimigo}</p>
+    <p><b>Dificuldade:</b> ${eventoGerado.dificuldade}</p>
+  `;
+
+  document.getElementById("evento").classList.remove("hidden");
+  document.getElementById("concluir").classList.remove("hidden");
+  document.getElementById("recompensa").classList.add("hidden");
 }
 
-function start(mode){
-  currentMode = mode;
-  document.getElementById('reward').classList.add('hidden');
-  const ev = events[mode][Math.floor(Math.random()*events[mode].length)];
-  document.getElementById('event').innerHTML = `<h3>${ev.n}</h3><p><b>Dificuldade:</b> ${ev.d}</p><p>${ev.t}</p>`;
-  document.getElementById('event').classList.remove('hidden');
-  document.getElementById('finishBtn').classList.remove('hidden');
+function concluirEvento(){
+  eventosConcluidos++;
+  atualizarBarra();
+
+  const lista = recompensas[modoAtual];
+  const recompensa = lista[Math.floor(Math.random()*lista.length)];
+
+  document.getElementById("recompensa").innerHTML = `
+    <h3>🎁 Recompensa</h3>
+    <span class="badge ${recompensa.raridade}">${recompensa.raridade.toUpperCase()}</span>
+    <p><b>Item:</b> ${recompensa.nome}</p>
+    <p><b>Tipo:</b> ${recompensa.tipo}</p>
+    <p><b>Efeito:</b> ${recompensa.bonus}</p>
+  `;
+
+  document.getElementById("recompensa").classList.remove("hidden");
+  document.getElementById("concluir").classList.add("hidden");
+
+  const tempo = (Math.floor(Math.random()*11)+5)*60000;
+  proximoTempo = Date.now()+tempo;
 }
 
-function finishEvent(){
-  eventsCompleted++;
-  if(eventsCompleted % 5 === 0) bonusMultiplier *= 2;
-  updateProgress();
-
-  const rarity = rollRarity(currentMode);
-  const pool = rewards[currentMode][rarity] || rewards[currentMode].Comum;
-  const item = pool[Math.floor(Math.random()*pool.length)];
-
-  document.getElementById('reward').innerHTML = `<h3>${item.n}</h3><p><b>Raridade:</b> ${rarity}</p><p>${item.d}</p>`;
-  document.getElementById('reward').classList.remove('hidden');
-  document.getElementById('finishBtn').classList.add('hidden');
-}
-
-function updateProgress(){
-  const progress = (eventsCompleted % 5) / 5 * 100;
-  document.getElementById('progressFill').style.width = progress + '%';
-  document.getElementById('luffy').style.left = `calc(${progress}% - 14px)`;
-  document.getElementById('bonusInfo').innerText = `Chance bônus: x${bonusMultiplier}`;
+function atualizarBarra(){
+  let progresso = (eventosConcluidos%5)*20;
+  document.getElementById("barra").style.width = progresso+"%";
 }
 </script>
+
 </body>
 </html>
