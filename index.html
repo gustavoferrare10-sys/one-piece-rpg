@@ -37,32 +37,12 @@ h1{font-family:'Pirata One';font-size:3em;color:var(--gold)}
   background:linear-gradient(135deg,#ff6b6b,#c1121f);
   color:#fff;
 }
-.card{
-  background:rgba(0,29,61,.96);
-  border-radius:20px;
-  padding:25px;
-  margin-top:25px;
-  text-align:left;
-}
+.card{background:rgba(0,29,61,.96);border-radius:20px;padding:25px;margin-top:25px;text-align:left}
 .card h2,.card h3{text-align:center;color:var(--gold)}
-.badges span{
-  display:inline-block;
-  background:#003566;
-  padding:6px 14px;
-  border-radius:20px;
-  margin:4px;
-  font-size:.85em
-}
-.description-box{margin:15px 0;padding:15px;background:#012a4a;border-radius:15px}
+.badges span{display:inline-block;background:#003566;padding:6px 14px;border-radius:20px;margin:4px;font-size:.85em}
+.description-box{margin:15px 0;padding:15px;background:#012a4a;border-radius:15px;line-height:1.6}
 .center{text-align:center}
-.action-btn{
-  margin-top:20px;
-  padding:14px 30px;
-  border:none;
-  border-radius:25px;
-  background:linear-gradient(135deg,var(--accent),#48cae4);
-  cursor:pointer;
-}
+.action-btn{margin-top:20px;padding:14px 30px;border:none;border-radius:25px;background:linear-gradient(135deg,var(--accent),#48cae4);cursor:pointer}
 .timer{margin-top:18px;font-weight:bold;color:var(--accent)}
 .hidden{display:none}
 </style>
@@ -70,11 +50,11 @@ h1{font-family:'Pirata One';font-size:3em;color:var(--gold)}
 <body>
 <div class="container">
   <h1>⚓ Grand Line RPG ⚓</h1>
-  <div class="subtitle">Eventos marítimos inspirados em One Piece</div>
+  <div class="subtitle">Eventos e recompensas oficiais do mundo de One Piece</div>
 
   <div class="mode-buttons">
-    <button id="btnGrand">🌊 Navegar pela Grand Line</button>
-    <button id="btnNew" class="secondary">🔥 Navegação do Novo Mundo</button>
+    <button id="btnGrand">🌊 Grand Line</button>
+    <button id="btnNew" class="secondary">🔥 Novo Mundo</button>
   </div>
 
   <div id="eventCard" class="card hidden"></div>
@@ -86,27 +66,35 @@ h1{font-family:'Pirata One';font-size:3em;color:var(--gold)}
 let cooldown=false;
 let currentMode=null;
 
+/* ================= EVENTOS ================= */
 const events={
   grand:[
-    {name:"Navio da Marinha",rarity:"Comum",difficulty:"Fácil",description:"Um navio da Marinha surge no horizonte patrulhando as águas.",enemies:"Fuzileiros e Capitão",objective:"Evitar ou derrotar o capitão"},
-    {name:"Rei do Mar",rarity:"Raro",difficulty:"Médio",description:"Uma criatura colossal emerge das profundezas atacando o navio.",enemies:"Rei do Mar",objective:"Sobreviver ou derrotá-lo"}
+    {name:"Navio da Marinha",rarity:"Comum",difficulty:"Fácil",description:"Um navio da Marinha patrulha a rota marítima, seus canhões apontados e soldados atentos.",enemies:"Fuzileiros navais e um Capitão",objective:"Escapar ou derrotar o capitão"},
+    {name:"Barco Pirata Hostil",rarity:"Comum",difficulty:"Fácil",description:"Uma bandeira pirata desconhecida surge no horizonte, buscando saques fáceis.",enemies:"Piratas iniciantes",objective:"Vencer o confronto"},
+    {name:"Rei do Mar",rarity:"Raro",difficulty:"Médio",description:"O mar se revolta quando uma criatura colossal emerge para atacar.",enemies:"Rei do Mar",objective:"Sobreviver ou derrotar"},
+    {name:"Navio Fantasma",rarity:"Raro",difficulty:"Médio",description:"Um navio antigo navega sem tripulação visível, envolto em névoa e silêncio.",enemies:"Espíritos amaldiçoados",objective:"Investigar ou fugir"}
   ],
   newworld:[
-    {name:"Piratas do Novo Mundo",rarity:"Raro",difficulty:"Difícil",description:"Piratas experientes liberam uma pressão esmagadora de Haki.",enemies:"Usuários de Haki",objective:"Vencer ou recuar"},
-    {name:"Território de Yonkou",rarity:"Lendário",difficulty:"Extremo",description:"Estas águas pertencem a um Imperador dos Mares.",enemies:"Comandantes de Yonkou",objective:"Fugir com vida"}
+    {name:"Piratas Veteranos",rarity:"Raro",difficulty:"Difícil",description:"Piratas experientes liberam Haki do Armamento e do Observação.",enemies:"Usuários de Haki",objective:"Vencer ou recuar"},
+    {name:"Frota de Yonkou",rarity:"Lendário",difficulty:"Extremo",description:"Navios colossais marcam território sob a bandeira de um Imperador dos Mares.",enemies:"Comandantes e elites de Yonkou",objective:"Fugir com vida"}
   ]
 };
 
+/* ================= RECOMPENSAS ================= */
 const rewards={
   grand:[
-    {chance:50,generate:()=>({title:`${Math.floor(Math.random()*200+100)} Berries`,details:["Ouro obtido na Grand Line."]})},
-    {chance:30,generate:()=>({title:"Mapa Antigo",details:["Mostra um navio afundado."]})},
-    {chance:20,generate:()=>({title:"Espada Nomeada",details:["Arma respeitável de um espadachim."]})}
+    {chance:30,generate:()=>({title:"200–400 Berries",details:["Dinheiro saqueado após o confronto."]})},
+    {chance:25,generate:()=>({title:"Sandai Kitetsu",details:["Uma das espadas amaldiçoadas Kitetsu.","Usada por Roronoa Zoro durante parte de sua jornada."]})},
+    {chance:20,generate:()=>({title:"Mapa da Grand Line",details:["Mostra rotas perigosas e ilhas instáveis."]})},
+    {chance:15,generate:()=>({title:"Fruta do Diabo – Paramecia",details:["Concede uma habilidade especial única ao usuário."]})},
+    {chance:10,generate:()=>({title:"Dial de Impacto",details:["Tecnologia de Skypiea capaz de armazenar energia cinética."]})}
   ],
   newworld:[
-    {chance:40,generate:()=>({title:`${Math.floor(Math.random()*3000+3000)} Berries`,details:["Tesouro de Yonkou."]})},
-    {chance:30,generate:()=>({title:"Meito Suprema",details:["Espada lendária do Novo Mundo."]})},
-    {chance:30,generate:()=>({title:"Zoan Mítica",details:["Fruta lendária de poder monstruoso."]})}
+    {chance:25,generate:()=>({title:"5.000–8.000 Berries",details:["Tesouro extraído de territórios de Yonkou."]})},
+    {chance:20,generate:()=>({title:"Gryphon",details:["Espada lendária empunhada por Shanks, o Ruivo.","Transborda Haki de um Imperador."]})},
+    {chance:20,generate:()=>({title:"Meito Suprema",details:["Lâmina de altíssimo grau, rival das maiores espadas do mundo."]})},
+    {chance:20,generate:()=>({title:"Fruta do Diabo – Zoan Mítica",details:["Permite a transformação em uma criatura lendária.","Poder comparável aos maiores piratas do mundo."]})},
+    {chance:15,generate:()=>({title:"Poneglyph Fragmentado",details:["Parte de uma inscrição antiga do Século Perdido.","Extremamente cobiçado pelo Governo Mundial."]})}
   ]
 };
 
@@ -139,7 +127,7 @@ function concludeEvent(){
   const reward=drawReward(currentMode);
   const card=document.getElementById('rewardCard');
   card.classList.remove('hidden');
-  card.innerHTML=`<h3>🎁 Recompensa</h3><p><b>${reward.title}</b></p><ul>${reward.details.map(d=>`<li>${d}</li>`).join('')}</ul>`;
+  card.innerHTML=`<h3>🎁 Recompensa Obtida</h3><p><b>${reward.title}</b></p><ul>${reward.details.map(d=>`<li>${d}</li>`).join('')}</ul>`;
 }
 
 function startCooldown(){
@@ -149,11 +137,10 @@ function startCooldown(){
   const interval=setInterval(()=>{
     timer.innerText=`⏳ Próximo evento em ${time}s`;
     time--;
-    if(time<=0){clearInterval(interval);cooldown=false;timer.innerText="⚓ Pronto para navegar novamente";}
+    if(time<=0){clearInterval(interval);cooldown=false;timer.innerText="⚓ Você pode navegar novamente";}
   },1000);
 }
 
-// BOTOES
 window.onload=()=>{
   document.getElementById('btnGrand').onclick=()=>generateEvent('grand');
   document.getElementById('btnNew').onclick=()=>generateEvent('newworld');
