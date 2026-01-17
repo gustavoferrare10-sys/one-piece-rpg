@@ -1,203 +1,265 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>RPG One Piece – Sistema Completo</title>
-<style>
-body {
-  margin: 0;
-  font-family: 'Trebuchet MS', Arial, sans-serif;
-  background: linear-gradient(180deg, #0a66c2, #02284d);
-  color: #fff;
-}
-.container {
-  max-width: 1000px;
-  margin: auto;
-  padding: 20px;
-}
-h1, h2 { text-align: center; }
-button {
-  background: #f5c542;
-  border: none;
-  padding: 12px 20px;
-  margin: 6px;
-  border-radius: 10px;
-  font-size: 16px;
-  cursor: pointer;
-  font-weight: bold;
-}
-button:hover { background: #ffe08a; }
-.card {
-  background: rgba(0,0,0,0.4);
-  padding: 18px;
-  border-radius: 12px;
-  margin-top: 16px;
-}
-.hidden { display: none; }
-.badge {
-  display: inline-block;
-  padding: 4px 10px;
-  border-radius: 20px;
-  background: #1e90ff;
-  font-size: 12px;
-  margin-right: 5px;
-}
-</style>
+  <meta charset="UTF-8" />
+  <title>One Piece RPG — Eventos Marítimos</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Trebuchet MS', Arial, sans-serif;
+      background: linear-gradient(#0b4ea2, #0a2e5c);
+      color: #fff;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .container {
+      width: 90%;
+      max-width: 900px;
+      background: rgba(0,0,0,0.35);
+      border-radius: 16px;
+      padding: 20px;
+      box-shadow: 0 0 25px rgba(0,0,0,0.6);
+    }
+
+    h1, h2 {
+      text-align: center;
+      margin-top: 0;
+    }
+
+    .buttons {
+      display: flex;
+      justify-content: center;
+      gap: 16px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+
+    button {
+      padding: 12px 18px;
+      font-size: 16px;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      background: linear-gradient(#ffd24d, #ff9f1c);
+      color: #000;
+      font-weight: bold;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    button:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 10px rgba(255,255,255,0.4);
+    }
+
+    button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .box {
+      background: rgba(255,255,255,0.1);
+      border-radius: 12px;
+      padding: 15px;
+      margin-top: 15px;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    .raridade-comum { color: #b5ffb5; }
+    .raridade-incomum { color: #7dd3fc; }
+    .raridade-rara { color: #c084fc; }
+    .raridade-epica { color: #f472b6; }
+    .raridade-lendaria { color: #facc15; }
+  </style>
 </head>
 <body>
-<div class="container">
-<h1>🌊 RPG One Piece – Sistema de Navegação</h1>
+  <div class="container">
+    <h1>🌊 One Piece RPG — Navegação</h1>
 
-<div style="text-align:center">
-<button id="grandBtn">🌊 Grand Line</button>
-<button id="newBtn">🔥 Novo Mundo</button>
-</div>
+    <div class="buttons">
+      <button onclick="gerarEvento('GRAND_LINE')">Navegar pela Grand Line</button>
+      <button onclick="gerarEvento('NOVO_MUNDO')">Navegação do Novo Mundo</button>
+    </div>
 
-<div id="evento" class="card hidden"></div>
-<button id="concluir" class="hidden">⚔️ Concluir Evento</button>
-<div id="recompensa" class="card hidden"></div>
-</div>
+    <div id="eventoBox" class="box hidden"></div>
+
+    <div class="buttons hidden" id="concluirBox">
+      <button onclick="concluirEvento()">Concluir Evento</button>
+    </div>
+
+    <div id="recompensaBox" class="box hidden"></div>
+  </div>
 
 <script>
-'use strict';
+// ================== CHANCES POR RARIDADE ==================
+const RARITY_CHANCES = {
+  GRAND_LINE: { comum: 50, incomum: 25, rara: 15, epica: 8, lendaria: 2 },
+  NOVO_MUNDO: { comum: 20, incomum: 25, rara: 25, epica: 20, lendaria: 10 }
+};
 
-/* ================= UTIL ================= */
-function rand(lista) { return lista[Math.floor(Math.random() * lista.length)]; }
-function randInt(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
+function escolherRaridade(modo) {
+  const chances = RARITY_CHANCES[modo];
+  let roll = Math.random() * 100;
+  let acumulado = 0;
+  for (const r in chances) {
+    acumulado += chances[r];
+    if (roll <= acumulado) return r;
+  }
+  return 'comum';
+}
 
-/* ================= EVENTOS ================= */
-const eventos = {
-  grand: [
-    { nome: 'Frota da Marinha', dificuldade: 'Média', inimigos: 'Capitão da Marinha e seus fuzileiros', desc: 'Navios da Marinha cercam sua embarcação exigindo rendição.' },
-    { nome: 'Rei dos Mares', dificuldade: 'Alta', inimigos: 'Criatura colossal marinha', desc: 'Um monstro gigantesco emerge das profundezas atacando o navio.' },
-    { nome: 'Ilha Perigosa', dificuldade: 'Baixa', inimigos: 'Fauna hostil', desc: 'Uma ilha desconhecida repleta de armadilhas naturais.' }
+// ================== EVENTOS ==================
+const EVENTOS = {
+  GRAND_LINE: [
+    {
+      nome: 'Navio Pirata Hostil',
+      dificuldade: 'Média',
+      inimigos: 'Tripulação pirata armada',
+      descricao: 'Um navio pirata surge no horizonte com intenções hostis.'
+    },
+    {
+      nome: 'Rei dos Mares',
+      dificuldade: 'Alta',
+      inimigos: 'Rei dos Mares gigante',
+      descricao: 'Uma criatura colossal emerge das profundezas do oceano.'
+    },
+    {
+      nome: 'Navio Fantasma',
+      dificuldade: 'Alta',
+      inimigos: 'Espíritos amaldiçoados',
+      descricao: 'Um navio abandonado navega sozinho, emanando uma aura sombria.'
+    }
   ],
-  newworld: [
-    { nome: 'Comandante de Yonkou', dificuldade: 'Extrema', inimigos: 'Pirata de elite com Haki avançado', desc: 'Um comandante de um Yonkou decide testar sua força.' },
-    { nome: 'Ilha de Haki Selvagem', dificuldade: 'Alta', inimigos: 'Guerreiros locais', desc: 'O ambiente inteiro emana Haki opressor.' },
-    { nome: 'Tempestade Anômala', dificuldade: 'Alta', inimigos: 'Forças da natureza', desc: 'Uma tempestade antinatural ameaça destruir tudo.' }
+  NOVO_MUNDO: [
+    {
+      nome: 'Frota de Yonkou',
+      dificuldade: 'Extrema',
+      inimigos: 'Comandantes veteranos e elites',
+      descricao: 'Uma frota ligada a um Yonkou bloqueia a rota marítima.'
+    },
+    {
+      nome: 'Criatura Ancestral',
+      dificuldade: 'Extrema',
+      inimigos: 'Ser ancestral desconhecido',
+      descricao: 'Uma criatura antiga desperta nas profundezas do Novo Mundo.'
+    }
+  ],
+  LENDARIO: [
+    {
+      nome: 'Confronto com um Yonkou',
+      dificuldade: 'Lendária',
+      inimigos: 'Yonkou e sua guarda pessoal',
+      descricao: 'Você cruza o caminho de um dos imperadores do mar.'
+    },
+    {
+      nome: 'Ilha Perdida do Século Perdido',
+      dificuldade: 'Lendária',
+      inimigos: 'Guardião ancestral',
+      descricao: 'Uma ilha esquecida que guarda segredos proibidos.'
+    }
   ]
 };
 
-/* ================= FRUTAS ================= */
-const frutas = {
-  paramecia: [
-    { nome: 'Bara Bara no Mi', modelo: 'Paramecia', habilidade: 'Separar o corpo em partes independentes.' },
-    { nome: 'Sube Sube no Mi', modelo: 'Paramecia', habilidade: 'Corpo escorregadio que anula impactos.' },
-    { nome: 'Kilo Kilo no Mi', modelo: 'Paramecia', habilidade: 'Controle extremo do peso corporal.' }
-  ],
-  especial: [
-    { nome: 'Mochi Mochi no Mi', modelo: 'Paramecia Especial', habilidade: 'Criação e manipulação de mochi com propriedades especiais.' },
-    { nome: 'Ope Ope no Mi', modelo: 'Paramecia Suprema', habilidade: 'Manipulação absoluta dentro de uma área criada.' }
-  ],
-  zoan: [
-    { nome: 'Tori Tori no Mi, Modelo: Fênix', modelo: 'Zoan Mítica', habilidade: 'Regeneração através de chamas azuis.' },
-    { nome: 'Inu Inu no Mi, Modelo: Okuchi no Makami', modelo: 'Zoan Mítica', habilidade: 'Forma divina lupina com poderes de gelo.' }
-  ],
-  artificial: [
-    { nome: 'Fruta SMILE', modelo: 'Artificial', habilidade: 'Poder Zoan instável.' },
-    { nome: 'SMILE Defeituosa', modelo: 'Artificial Falha', habilidade: 'Efeitos colaterais severos e permanentes.' }
-  ]
+// ================== RECOMPENSAS ==================
+const RECOMPENSAS = {
+  GRAND_LINE: {
+    comum: [
+      { nome: 'Bara Bara no Mi', tipo: 'Akuma no Mi', descricao: 'Permite separar o corpo em partes.' },
+      { nome: 'Bomu Bomu no Mi', tipo: 'Akuma no Mi', descricao: 'O corpo se torna uma bomba viva.' },
+      { nome: 'Bandana Pirata', tipo: 'Cosmético', descricao: 'FORÇA +5.' },
+      { nome: 'Katana Simples', tipo: 'Espada', descricao: 'Espada básica usada por piratas iniciantes.' }
+    ],
+    incomum: [
+      { nome: 'Sube Sube no Mi', tipo: 'Akuma no Mi', descricao: 'O corpo se torna escorregadio.' },
+      { nome: 'Sandálias do Marinheiro', tipo: 'Cosmético', descricao: 'VELOCIDADE +7.' },
+      { nome: 'Yubashiri', tipo: 'Espada', descricao: 'Espada leve e bem balanceada.' }
+    ],
+    rara: [
+      { nome: 'Supa Supa no Mi', tipo: 'Akuma no Mi', descricao: 'O corpo se transforma em lâminas.' },
+      { nome: 'Kilo Kilo no Mi', tipo: 'Akuma no Mi', descricao: 'Permite alterar o peso do corpo.' },
+      { nome: 'Shusui (Réplica)', tipo: 'Espada', descricao: 'Réplica da lendária espada negra.' },
+      { nome: 'Capa do Capitão', tipo: 'Cosmético', descricao: 'RESISTÊNCIA +10.' }
+    ],
+    epica: [
+      { nome: 'Doru Doru no Mi', tipo: 'Akuma no Mi', descricao: 'Cria e molda cera sólida.' },
+      { nome: 'Sandai Kitetsu', tipo: 'Espada Amaldiçoada', descricao: 'Espada sedenta por sangue.' }
+    ],
+    lendaria: [
+      { nome: 'Saber', tipo: 'Espada', descricao: 'Espada usada por Gol D. Roger.' }
+    ]
+  },
+  NOVO_MUNDO: {
+    comum: [
+      { nome: 'SMILE Artificial', tipo: 'Akuma Artificial', descricao: 'Concede poder Zoan instável.' },
+      { nome: 'Elmo de Wano', tipo: 'Cosmético', descricao: 'RESISTÊNCIA +10.' }
+    ],
+    incomum: [
+      { nome: 'Ito Ito no Mi', tipo: 'Akuma no Mi', descricao: 'Cria e controla fios cortantes.' },
+      { nome: 'Nidai Kitetsu', tipo: 'Espada', descricao: 'Uma das O Wazamono amaldiçoadas.' }
+    ],
+    rara: [
+      { nome: 'Mochi Mochi no Mi', tipo: 'Akuma no Mi', descricao: 'Cria e controla mochi.' },
+      { nome: 'Kikoku', tipo: 'Espada Amaldiçoada', descricao: 'Espada usada por Trafalgar Law.' }
+    ],
+    epica: [
+      { nome: 'Tori Tori no Mi — Fênix', tipo: 'Zoan Mítica', descricao: 'Regeneração e chamas azuis.' },
+      { nome: 'Armadura Germa 66', tipo: 'Equipamento', descricao: 'FORÇA +15 / VELOCIDADE +15.' }
+    ],
+    lendaria: [
+      { nome: 'Gura Gura no Mi', tipo: 'Akuma no Mi', descricao: 'Cria terremotos devastadores.' },
+      { nome: 'Napoleon', tipo: 'Homie Lendário', descricao: 'Espada viva de Big Mom.' }
+    ]
+  },
+  LENDARIO: {
+    lendaria: [
+      { nome: 'Akuma no Mi Desconhecida', tipo: 'Akuma Suprema', descricao: 'Uma fruta de poder jamais registrado.' },
+      { nome: 'Arma Ancestral (Informação)', tipo: 'Relíquia Proibida', descricao: 'Conhecimento sobre uma arma ancestral.' },
+      { nome: 'Road Poneglyph (Cópia)', tipo: 'Relíquia', descricao: 'Indica a localização de Laugh Tale.' }
+    ]
+  }
 };
 
-/* ================= RECOMPENSAS ================= */
-const recompensas = {
-  grand: [
-    { tipo: 'Tecnica', nome: 'Soru', desc: 'Movimento instantâneo de alta velocidade.' },
-    { tipo: 'Tecnica', nome: 'Tekkai', desc: 'Endurecimento do corpo como aço.' },
-    { tipo: 'Tecnica', nome: 'Rankyaku', desc: 'Cortes de ar comprimido com as pernas.' },
-    { tipo: 'Tecnica', nome: 'Shigan', desc: 'Ataque perfurante com os dedos.' },
-
-    { tipo: 'Item', nome: 'Gas Dial', desc: 'Dial que libera gás comprimido.' },
-    { tipo: 'Item', nome: 'Jet Dial', desc: 'Dial que gera impulso extremo.' },
-    { tipo: 'Item', nome: 'Cola do Franky', desc: 'Combustível energético usado em tecnologias.' },
-
-    { tipo: 'Consumivel', nome: 'Carne Especial', efeito: () => `Força +${randInt(5,10)}` },
-    { tipo: 'Consumivel', nome: 'Rum Pirata', efeito: () => `Resistência +${randInt(5,10)}` },
-    { tipo: 'Consumivel', nome: 'Fruta Energética', efeito: () => `Velocidade +${randInt(5,10)}` },
-
-    { tipo: 'Equipamento', nome: 'Armadura de Wapolmetal', desc: 'Metal especial altamente resistente.' },
-    { tipo: 'Equipamento', nome: 'Capa da Marinha', desc: 'Reduz dano recebido em combates.' },
-
-    { tipo: 'Cosmetico', nome: 'Chapéu Estilo Pirata', efeito: () => `Carisma +${randInt(5,10)}` },
-
-    { tipo: 'Akuma', grupo: 'paramecia' },
-
-    { tipo: 'Navegacao', nome: 'Navio Revestido', desc: 'Permite navegação submarina.' },
-    { tipo: 'Navegacao', nome: 'Mapa da Grand Line', desc: 'Revela ilhas raras e rotas perigosas.' },
-
-    { tipo: 'Ouro', desc: () => `Você obtém ${randInt(2000,8000)} Berries.` }
-  ],
-
-  newworld: [
-    { tipo: 'Arma', nome: 'Nidai Kitetsu', desc: 'Espada O Wazamono amaldiçoada.' },
-    { tipo: 'Arma', nome: 'Kikoku', desc: 'Espada amaldiçoada de Trafalgar Law.' },
-    { tipo: 'Arma', nome: 'Napoleon', desc: 'Homie lendário de Big Mom.' },
-
-    { tipo: 'Equipamento', nome: 'Armadura Samurai de Wano', desc: 'Compatível com Haki.' },
-    { tipo: 'Equipamento', nome: 'Armadura Germa 66', desc: 'Tecnologia militar avançada.' },
-
-    { tipo: 'Consumivel', nome: 'Carne de Rei dos Mares', efeito: () => `Força +${randInt(10,20)}` },
-    { tipo: 'Consumivel', nome: 'Sake de Wano', efeito: () => `Resistência +${randInt(10,20)}` },
-    { tipo: 'Consumivel', nome: 'Elixir do Novo Mundo', efeito: () => `Velocidade +${randInt(10,20)}` },
-
-    { tipo: 'Cosmetico', nome: 'Manto de Yonkou', efeito: () => `Presença +${randInt(10,20)}` },
-    { tipo: 'Cosmetico', nome: 'Cicatriz de Batalha', efeito: () => `Intimidação +${randInt(10,20)}` },
-
-    { tipo: 'Akuma', grupo: 'especial' },
-    { tipo: 'Akuma', grupo: 'zoan' },
-    { tipo: 'Akuma', grupo: 'artificial' },
-
-    { tipo: 'Haki', nome: 'Observação do Futuro', desc: 'Vislumbra acontecimentos futuros.' },
-    { tipo: 'Habilidade', nome: 'Voz de Todas as Coisas', desc: 'Comunicação com entidades antigas.' },
-
-    { tipo: 'Relic', nome: 'Road Poneglyph', desc: 'Fragmento essencial para Laugh Tale.' },
-    { tipo: 'Relic', nome: 'Informação da Arma Ancestral', desc: 'Conhecimento proibido e perigoso.' },
-
-    { tipo: 'Ouro', desc: () => `Você obtém ${randInt(10000,40000)} Berries.` }
-  ]
-};
-
-let modoAtual = '';
+let eventoAtual = null;
+let modoAtual = null;
+let recompensaAtual = null;
 
 function gerarEvento(modo) {
   modoAtual = modo;
-  const ev = rand(eventos[modo]);
-  document.getElementById('evento').innerHTML = `
-    <h2>${ev.nome}</h2>
-    <span class="badge">Dificuldade: ${ev.dificuldade}</span>
-    <p><strong>Inimigos:</strong> ${ev.inimigos}</p>
-    <p>${ev.desc}</p>`;
-  document.getElementById('evento').classList.remove('hidden');
-  document.getElementById('concluir').classList.remove('hidden');
-  document.getElementById('recompensa').classList.add('hidden');
+  const lista = EVENTOS[modo];
+  eventoAtual = lista[Math.floor(Math.random() * lista.length)];
+
+  document.getElementById('eventoBox').innerHTML = `
+    <h2>${eventoAtual.nome}</h2>
+    <p><strong>Dificuldade:</strong> ${eventoAtual.dificuldade}</p>
+    <p><strong>Inimigos:</strong> ${eventoAtual.inimigos}</p>
+    <p>${eventoAtual.descricao}</p>
+  `;
+
+  document.getElementById('eventoBox').classList.remove('hidden');
+  document.getElementById('concluirBox').classList.remove('hidden');
+  document.getElementById('recompensaBox').classList.add('hidden');
 }
 
 function concluirEvento() {
-  const r = rand(recompensas[modoAtual]);
-  let html = '<h2>🎁 Recompensa Obtida</h2>';
+  const raridade = escolherRaridade(modoAtual);
+  const pool = RECOMPENSAS[modoAtual][raridade];
+  recompensaAtual = pool[Math.floor(Math.random() * pool.length)];
 
-  if (r.tipo === 'Akuma') {
-    const fruta = rand(frutas[r.grupo]);
-    html += `<p><strong>${fruta.nome}</strong></p>`;
-    html += `<p>Modelo: ${fruta.modelo}</p>`;
-    html += `<p>Habilidade: ${fruta.habilidade}</p>`;
-  } else if (r.tipo === 'Ouro') {
-    html += `<p>${r.desc()}</p>`;
-  } else {
-    html += `<p><strong>${r.nome}</strong></p><p>${r.desc}</p>`;
-  }
+  document.getElementById('recompensaBox').innerHTML = `
+    <h2>🎁 Recompensa Obtida</h2>
+    <p class="raridade-${raridade}"><strong>Raridade:</strong> ${raridade.toUpperCase()}</p>
+    <p><strong>${recompensaAtual.nome}</strong></p>
+    <p>Tipo: ${recompensaAtual.tipo}</p>
+    <p>${recompensaAtual.descricao}</p>
+  `;
 
-  document.getElementById('recompensa').innerHTML = html;
-  document.getElementById('recompensa').classList.remove('hidden');
+  document.getElementById('recompensaBox').classList.remove('hidden');
 }
-
-window.onload = () => {
-  document.getElementById('grandBtn').onclick = () => gerarEvento('grand');
-  document.getElementById('newBtn').onclick = () => gerarEvento('newworld');
-  document.getElementById('concluir').onclick = concluirEvento;
-};
 </script>
 </body>
 </html>
