@@ -7,9 +7,9 @@
 <link href="https://fonts.googleapis.com/css2?family=Pirata+One&family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
 <style>
 :root{
-  --sea:#0b3c5d;
-  --sea-dark:#07283d;
-  --sea-deep:#031926;
+  --sea:#0b5ed7;
+  --sea-dark:#084298;
+  --sea-deep:#052c65;
   --gold:#f5c542;
   --accent:#90e0ef;
   --card:#001d3d;
@@ -20,32 +20,28 @@ body{
   color:#fff;
   background:linear-gradient(180deg,var(--sea),var(--sea-dark),var(--sea-deep));
   min-height:100vh;
-  text-align:center;
 }
-.container{max-width:1100px;margin:auto;padding:30px}
-h1{font-family:'Pirata One';font-size:3.2em;color:var(--gold);text-shadow:2px 2px 6px #000}
+.container{max-width:1100px;margin:auto;padding:30px;text-align:center}
+h1{font-family:'Pirata One';font-size:3em;color:var(--gold)}
 .subtitle{opacity:.9;margin-bottom:25px}
 .mode-buttons button{
-  padding:16px 28px;
+  padding:16px 30px;
   margin:10px;
   font-size:1.05em;
   border:none;
   border-radius:30px;
   cursor:pointer;
   background:linear-gradient(135deg,var(--gold),#ffd166);
-  box-shadow:0 6px 15px rgba(0,0,0,.6);
 }
 .mode-buttons button.secondary{
   background:linear-gradient(135deg,#ff6b6b,#c1121f);
   color:#fff;
 }
-.mode-buttons button:disabled{opacity:.4;cursor:not-allowed}
 .card{
   background:rgba(0,29,61,.96);
-  border-radius:22px;
-  padding:28px;
+  border-radius:20px;
+  padding:25px;
   margin-top:25px;
-  box-shadow:0 0 25px rgba(0,0,0,.8);
   text-align:left;
 }
 .card h2,.card h3{text-align:center;color:var(--gold)}
@@ -57,36 +53,28 @@ h1{font-family:'Pirata One';font-size:3.2em;color:var(--gold);text-shadow:2px 2p
   margin:4px;
   font-size:.85em
 }
-.description-box{
-  margin-top:15px;
-  padding:16px;
-  background:#012a4a;
-  border-radius:15px;
-  line-height:1.65
-}
+.description-box{margin:15px 0;padding:15px;background:#012a4a;border-radius:15px}
 .center{text-align:center}
 .action-btn{
-  margin-top:22px;
-  padding:14px 28px;
+  margin-top:20px;
+  padding:14px 30px;
   border:none;
   border-radius:25px;
   background:linear-gradient(135deg,var(--accent),#48cae4);
-  font-size:1em;
-  cursor:pointer
+  cursor:pointer;
 }
 .timer{margin-top:18px;font-weight:bold;color:var(--accent)}
 .hidden{display:none}
-.reward-list li{margin:8px 0}
 </style>
 </head>
 <body>
 <div class="container">
   <h1>⚓ Grand Line RPG ⚓</h1>
-  <div class="subtitle">Sistema narrativo de eventos marítimos – One Piece</div>
+  <div class="subtitle">Eventos marítimos inspirados em One Piece</div>
 
   <div class="mode-buttons">
-    <button onclick="generateEvent('grand')">🌊 Navegar pela Grand Line</button>
-    <button class="secondary" onclick="generateEvent('newworld')">🔥 Navegação do Novo Mundo</button>
+    <button id="btnGrand">🌊 Navegar pela Grand Line</button>
+    <button id="btnNew" class="secondary">🔥 Navegação do Novo Mundo</button>
   </div>
 
   <div id="eventCard" class="card hidden"></div>
@@ -96,126 +84,35 @@ h1{font-family:'Pirata One';font-size:3.2em;color:var(--gold);text-shadow:2px 2p
 
 <script>
 let cooldown=false;
-let pendingReward=null;
 let currentMode=null;
 
-/* ================= EVENTOS ================= */
 const events={
   grand:[
-    {
-      name:"Navio da Marinha",
-      rarity:"Comum",
-      difficulty:"Fácil",
-      description:"Velas brancas surgem no horizonte. Um navio da Marinha corta o mar com formação disciplinada.",
-      enemies:"Fuzileiros navais e um Capitão da Marinha",
-      objective:"Evitar confronto ou derrotar o capitão"
-    },
-    {
-      name:"Rei do Mar",
-      rarity:"Raro",
-      difficulty:"Médio",
-      description:"O oceano se agita violentamente e uma criatura colossal emerge das profundezas.",
-      enemies:"Rei do Mar colossal",
-      objective:"Sobreviver ou derrotar a criatura"
-    },
-    {
-      name:"Thriller Bark",
-      rarity:"Lendário",
-      difficulty:"Difícil",
-      description:"Uma névoa espessa cobre o mar. Um navio gigantesco e sombrio surge em silêncio absoluto.",
-      enemies:"Zumbis e Gecko Moria",
-      objective:"Escapar do navio amaldiçoado"
-    }
+    {name:"Navio da Marinha",rarity:"Comum",difficulty:"Fácil",description:"Um navio da Marinha surge no horizonte patrulhando as águas.",enemies:"Fuzileiros e Capitão",objective:"Evitar ou derrotar o capitão"},
+    {name:"Rei do Mar",rarity:"Raro",difficulty:"Médio",description:"Uma criatura colossal emerge das profundezas atacando o navio.",enemies:"Rei do Mar",objective:"Sobreviver ou derrotá-lo"}
   ],
   newworld:[
-    {
-      name:"Piratas do Novo Mundo",
-      rarity:"Raro",
-      difficulty:"Difícil",
-      description:"A pressão do Haki toma o ar. Piratas veteranos observam em silêncio.",
-      enemies:"Piratas usuários de Haki",
-      objective:"Vencer o confronto ou recuar"
-    },
-    {
-      name:"Território de Yonkou",
-      rarity:"Lendário",
-      difficulty:"Extremo",
-      description:"O mar parece obedecer a uma vontade absoluta. Estas águas pertencem a um Imperador.",
-      enemies:"Comandantes de Yonkou",
-      objective:"Fugir com vida"
-    }
+    {name:"Piratas do Novo Mundo",rarity:"Raro",difficulty:"Difícil",description:"Piratas experientes liberam uma pressão esmagadora de Haki.",enemies:"Usuários de Haki",objective:"Vencer ou recuar"},
+    {name:"Território de Yonkou",rarity:"Lendário",difficulty:"Extremo",description:"Estas águas pertencem a um Imperador dos Mares.",enemies:"Comandantes de Yonkou",objective:"Fugir com vida"}
   ]
 };
 
-/* ================= RECOMPENSAS ================= */
 const rewards={
   grand:[
-    {
-      chance:40,
-      generate:()=>{
-        const gold=Math.floor(Math.random()*200)+100;
-        return {title:`${gold} Berries`,details:["Espólios comuns da Grand Line."]};
-      }
-    },
-    {
-      chance:30,
-      generate:()=>({
-        title:"Mapa Antigo",
-        details:["Mostra a localização de um navio afundado."]
-      })
-    },
-    {
-      chance:20,
-      generate:()=>({
-        title:"Espada Nomeada",
-        details:["Uma lâmina respeitável usada por piratas experientes."]
-      })
-    },
-    {
-      chance:10,
-      generate:()=>({
-        title:"Fruta do Diabo – Paramecia",
-        details:["Uma fruta rara capaz de conceder habilidades especiais."]
-      })
-    }
+    {chance:50,generate:()=>({title:`${Math.floor(Math.random()*200+100)} Berries`,details:["Ouro obtido na Grand Line."]})},
+    {chance:30,generate:()=>({title:"Mapa Antigo",details:["Mostra um navio afundado."]})},
+    {chance:20,generate:()=>({title:"Espada Nomeada",details:["Arma respeitável de um espadachim."]})}
   ],
   newworld:[
-    {
-      chance:40,
-      generate:()=>{
-        const gold=Math.floor(Math.random()*3000)+3000;
-        return {title:`${gold} Berries`,details:["Tesouro retirado de territórios de Yonkou."]};
-      }
-    },
-    {
-      chance:25,
-      generate:()=>({
-        title:"Meito Suprema",
-        details:["Uma espada lendária capaz de intimidar até grandes piratas."]
-      })
-    },
-    {
-      chance:20,
-      generate:()=>({
-        title:"Zoan Mítica",
-        details:["Concede o poder de uma criatura lendária."]
-      })
-    },
-    {
-      chance:15,
-      generate:()=>({
-        title:"Relíquia do Século Perdido",
-        details:["Um artefato cobiçado pelo Governo Mundial."]
-      })
-    }
+    {chance:40,generate:()=>({title:`${Math.floor(Math.random()*3000+3000)} Berries`,details:["Tesouro de Yonkou."]})},
+    {chance:30,generate:()=>({title:"Meito Suprema",details:["Espada lendária do Novo Mundo."]})},
+    {chance:30,generate:()=>({title:"Zoan Mítica",details:["Fruta lendária de poder monstruoso."]})}
   ]
 };
 
 function drawReward(mode){
   const pool=[];
-  rewards[mode].forEach(r=>{
-    for(let i=0;i<r.chance;i++) pool.push(r);
-  });
+  rewards[mode].forEach(r=>{for(let i=0;i<r.chance;i++) pool.push(r)});
   return pool[Math.floor(Math.random()*pool.length)].generate();
 }
 
@@ -223,37 +120,26 @@ function generateEvent(mode){
   if(cooldown) return;
   currentMode=mode;
   const event=events[mode][Math.floor(Math.random()*events[mode].length)];
-  pendingReward=null;
-
   document.getElementById('rewardCard').classList.add('hidden');
-  document.getElementById('eventCard').classList.remove('hidden');
-
-  document.getElementById('eventCard').innerHTML=`
+  const card=document.getElementById('eventCard');
+  card.classList.remove('hidden');
+  card.innerHTML=`
     <h2>${event.name}</h2>
-    <div class="badges">
-      <span>Raridade: ${event.rarity}</span>
-      <span>Dificuldade: ${event.difficulty}</span>
-    </div>
+    <div class="badges"><span>Raridade: ${event.rarity}</span><span>Dificuldade: ${event.difficulty}</span></div>
     <div class="description-box">${event.description}</div>
     <p><b>Inimigos:</b> ${event.enemies}</p>
     <p><b>Objetivo:</b> ${event.objective}</p>
-    <div class="center">
-      <button class="action-btn" onclick="concludeEvent()">Concluir Evento</button>
-    </div>
+    <div class="center"><button class="action-btn" id="btnConclude">Concluir Evento</button></div>
   `;
-
+  document.getElementById('btnConclude').onclick=concludeEvent;
   startCooldown();
 }
 
 function concludeEvent(){
-  if(!currentMode) return;
   const reward=drawReward(currentMode);
-  document.getElementById('rewardCard').classList.remove('hidden');
-  document.getElementById('rewardCard').innerHTML=`
-    <h3>🎁 Recompensa Obtida</h3>
-    <p><b>${reward.title}</b></p>
-    <ul class="reward-list">${reward.details.map(d=>`<li>${d}</li>`).join('')}</ul>
-  `;
+  const card=document.getElementById('rewardCard');
+  card.classList.remove('hidden');
+  card.innerHTML=`<h3>🎁 Recompensa</h3><p><b>${reward.title}</b></p><ul>${reward.details.map(d=>`<li>${d}</li>`).join('')}</ul>`;
 }
 
 function startCooldown(){
@@ -261,15 +147,17 @@ function startCooldown(){
   let time=Math.floor(Math.random()*600)+300;
   const timer=document.getElementById('timer');
   const interval=setInterval(()=>{
-    timer.innerText=`⏳ Próximo evento disponível em ${time}s`;
+    timer.innerText=`⏳ Próximo evento em ${time}s`;
     time--;
-    if(time<=0){
-      clearInterval(interval);
-      cooldown=false;
-      timer.innerText="⚓ Você pode navegar novamente!";
-    }
+    if(time<=0){clearInterval(interval);cooldown=false;timer.innerText="⚓ Pronto para navegar novamente";}
   },1000);
 }
+
+// BOTOES
+window.onload=()=>{
+  document.getElementById('btnGrand').onclick=()=>generateEvent('grand');
+  document.getElementById('btnNew').onclick=()=>generateEvent('newworld');
+};
 </script>
 </body>
 </html>
